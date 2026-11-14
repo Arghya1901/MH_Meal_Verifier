@@ -2,7 +2,7 @@ venv/
 __pycache__/
 *.pyc
 dispatch.db
-mobileclip_blt.ts
+/mobileclip_blt.ts
 yoloe-11s-seg.pt
 yoloe-11s-seg-pf.pt
 .env
