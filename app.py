@@ -34,7 +34,8 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "best.pt")
+ONNX_PATH = os.path.join(BASE_DIR, "best.onnx")
+META_PATH = os.path.join(BASE_DIR, "model_meta.json")
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.sldwvllytyhnnebitvzg:Arghya19012006@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
@@ -48,24 +49,32 @@ def get_db():
 
 
 model = None
-torch = None
+ort_input_name = None
+model_task = "classify"
+model_imgsz = 224
+model_names = {}
 yoloe_prompt_model = None
 _cached_prompt_classes = None
 _prompt_lock = threading.Lock()
 
-if os.path.exists(MODEL_PATH):
-    import torch as _torch
-    from ultralytics import YOLO
-    torch = _torch
-    torch.set_num_threads(1)
-    try:
-        torch.set_num_interop_threads(1)
-    except Exception:
-        pass
-    model = YOLO(MODEL_PATH)
-    print(f"✅ Loaded custom model '{MODEL_PATH}' ({len(model.names)} classes)")
+if os.path.exists(ONNX_PATH) and os.path.exists(META_PATH):
+    import onnxruntime as ort
+    with open(META_PATH, "r") as f:
+        _meta = json.load(f)
+    model_task = _meta.get("task", "classify")
+    model_imgsz = int(_meta.get("imgsz", 224 if model_task == "classify" else 640))
+    model_names = {int(k): v for k, v in _meta.get("names", {}).items()}
+
+    _sess_opts = ort.SessionOptions()
+    _sess_opts.intra_op_num_threads = 1
+    _sess_opts.inter_op_num_threads = 1
+    model = ort.InferenceSession(
+        ONNX_PATH, sess_options=_sess_opts, providers=["CPUExecutionProvider"]
+    )
+    ort_input_name = model.get_inputs()[0].name
+    print(f"✅ Loaded ONNX model '{ONNX_PATH}' ({model_task}, imgsz={model_imgsz}, {len(model_names)} classes)")
 else:
-    print("⚠️ best.pt not found — running custom model in Demo Mode")
+    print("⚠️ best.onnx not found — running custom model in Demo Mode")
 
 DEMO_CLASSES = [
     "Aloo Gobi", "Biryani", "Butter Chicken", "Chana Masala",
@@ -239,7 +248,7 @@ def estimate_fill_percentage(pil_img: Image.Image) -> float:
 
 def get_trained_class_names() -> list:
     if model is not None:
-        return [str(n).title() for n in model.names.values()]
+        return [str(n).title() for n in model_names.values()]
     return DEMO_CLASSES
 
 
@@ -317,6 +326,18 @@ def extract_box_detections(
     return detections
 
 
+def _preprocess_classify(pil_img: Image.Image, size: int) -> np.ndarray:
+    w, h = pil_img.size
+    scale = size / min(w, h)
+    nw, nh = int(round(w * scale)), int(round(h * scale))
+    resized = pil_img.resize((nw, nh), Image.BILINEAR)
+    left = (nw - size) // 2
+    top = (nh - size) // 2
+    cropped = resized.crop((left, top, left + size, top + size))
+    arr = np.asarray(cropped, dtype=np.float32) / 255.0
+    return np.expand_dims(np.transpose(arr, (2, 0, 1)), axis=0)
+
+
 def run_yolo_on_image(
     image: Image.Image,
     conf_val: float,
@@ -324,48 +345,35 @@ def run_yolo_on_image(
     imgsz: int = 640,
     include_meta: bool = False
 ):
-    """Run custom 18-dish YOLO model."""
+    """Run custom 18-dish YOLO ONNX model."""
     if model is None:
         dets = [{"name": "Butter Chicken", "confidence": 91.7, "source": "18-Dish AI"}]
         ann = draw_top_left_label(image, dets) if with_plot else ""
         return dets, ann, False
 
-    with torch.inference_mode():
-        results = model.predict(image, conf=conf_val, imgsz=imgsz, verbose=False)
-
-    is_box_model = results[0].boxes is not None
     detections = []
+    inp = _preprocess_classify(image, model_imgsz)
+    out = model.run(None, {ort_input_name: inp})[0][0]
+    if out.min() < 0 or abs(float(out.sum()) - 1.0) > 0.05:
+        exp = np.exp(out - np.max(out))
+        probs = exp / exp.sum()
+    else:
+        probs = out
 
-    if is_box_model:
-        detections = extract_box_detections(
-            results[0],
-            model.names,
-            "18-Dish AI",
-            img_size=image.size,
-            include_meta=include_meta
-        )
-    elif results[0].probs is not None:
-        top_id = int(results[0].probs.top1)
-        top_score = float(round(float(results[0].probs.top1conf) * 100, 1))
-        if top_score >= conf_val * 100:
-            detections.append({
-                "name": str(model.names[top_id]).title(),
-                "confidence": top_score,
-                "source": "18-Dish AI"
-            })
+    top_id = int(np.argmax(probs))
+    top_score = float(round(float(probs[top_id]) * 100, 1))
+    if top_score >= conf_val * 100:
+        detections.append({
+            "name": str(model_names.get(top_id, top_id)).title(),
+            "confidence": top_score,
+            "source": "18-Dish AI"
+        })
 
-    annotated_b64 = ""
-    if with_plot:
-        clean_dets = _strip_meta(detections) if include_meta else detections
-        if is_box_model:
-            annotated_b64 = draw_top_left_label(image, clean_dets)
-        else:
-            annotated_b64 = to_base64(Image.fromarray(results[0].plot()[:, :, ::-1]))
-
-    del results
+    del inp, out
     gc.collect()
 
-    return detections, annotated_b64, is_box_model
+    annotated_b64 = draw_top_left_label(image, detections) if with_plot else ""
+    return detections, annotated_b64, False
 
 
 def run_hybrid_inference(
@@ -376,7 +384,7 @@ def run_hybrid_inference(
     with_plot: bool = True,
     is_live: bool = False
 ):
-    """best.pt-only inference pipeline optimized for 512 MB RAM."""
+    """best.onnx-only inference pipeline optimized for 512 MB RAM."""
     imgsz = 320 if is_live else 640
     dets, ann, _ = run_yolo_on_image(image, conf_val, with_plot=with_plot, imgsz=imgsz)
     return dets, ann
@@ -403,7 +411,7 @@ def get_logo():
 @app.get("/classes")
 def classes():
     if model is not None:
-        names = sorted([str(n).title() for n in model.names.values()])
+        names = sorted([str(n).title() for n in model_names.values()])
         return {
             "classes": names,
             "total": int(len(names)),

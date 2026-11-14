@@ -1,0 +1,24 @@
+{
+  "task": "classify",
+  "imgsz": 224,
+  "names": {
+    "0": "aloo gobi",
+    "1": "bhatura",
+    "2": "biryani",
+    "3": "butter chicken",
+    "4": "chana masala",
+    "5": "chapati",
+    "6": "chicken tikka",
+    "7": "chicken tikka masala",
+    "8": "dal makhani",
+    "9": "dal tadka",
+    "10": "gulab jamun",
+    "11": "jalebi",
+    "12": "kadai paneer",
+    "13": "lassi",
+    "14": "naan",
+    "15": "palak paneer",
+    "16": "paneer butter masala",
+    "17": "rasgulla"
+  }
+}
