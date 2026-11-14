@@ -1,5 +1,8 @@
 fastapi
 uvicorn
 python-multipart
-ultralytics
 pillow
+numpy
+opencv-python-headless
+psycopg2-binary
+ultralytics

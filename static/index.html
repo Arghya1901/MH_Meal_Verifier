@@ -876,6 +876,19 @@
           ? `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Demo Mode`
           : `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> ${data.total} Indian Dishes Ready`;
 
+        if (data.hybrid === false) {
+          aiMode = "custom";
+          $("modeHintText").textContent = "18-Dish Model Active (Low-RAM Cloud Mode)";
+          document.querySelectorAll(".ai-mode-btn").forEach(b => {
+            if (b.dataset.aiMode === "custom") {
+              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition whitespace-nowrap";
+            } else {
+              b.disabled = true;
+              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-slate-300 cursor-not-allowed transition whitespace-nowrap";
+            }
+          });
+        }
+
         allDishes.forEach(dish => {
           const opt = document.createElement("option");
           opt.value = dish;
@@ -884,44 +897,6 @@
         });
         renderDishTags(allDishes);
       });
-
-    async function loadOrdersFromVault(searchQuery = "") {
-      try {
-        const url = searchQuery ? `/orders?q=${encodeURIComponent(searchQuery)}` : "/orders";
-        const res = await fetch(url);
-        const data = await res.json();
-        dispatchLog = data.orders || [];
-
-        if (!searchQuery && dispatchLog.length > 0) {
-          const nums = dispatchLog
-            .map(o => parseInt((o.orderId || "").replace(/\D/g, ""), 10))
-            .filter(n => !isNaN(n));
-          if (nums.length > 0) {
-            orderCounter = Math.max(orderCounter, Math.max(...nums) + 1);
-            $("orderIdInput").value = `ORD-${orderCounter}`;
-          }
-        }
-        renderDispatchTable(searchQuery.length > 0);
-      } catch {
-        // Ignore if backend not ready
-      }
-    }
-    loadOrdersFromVault();
-
-    $("logSearchInput").addEventListener("input", e => {
-      loadOrdersFromVault(e.target.value.trim());
-    });
-
-    function renderDishTags(list) {
-      $("classesList").innerHTML = list
-        .map(d => `<span class="px-2.5 py-1 text-xs rounded-full bg-white text-slate-700 border border-slate-200 hover:border-slate-400 transition">${d}</span>`)
-        .join("");
-    }
-
-    $("dishSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      renderDishTags(allDishes.filter(d => d.toLowerCase().includes(q)));
-    });
 
     // 2. Expected Order Tabs, Mother's Hut Direct URL Fetcher & Persistent CSV Gallery Picker
     $("tabOrderManual").addEventListener("click", () => switchOrderTab("manual"));

@@ -1,13 +1,28 @@
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["TORCH_NUM_THREADS"] = "1"
+os.environ["YOLO_VERBOSE"] = "False"
+
+import gc
+import io, base64, time, re, json, hashlib, csv, threading
+import urllib.request
+from urllib.parse import urljoin
+from datetime import datetime
+from contextlib import closing
+
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body
 from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageOps
-from datetime import datetime
-import io, base64, os, time, re, json, sqlite3, hashlib, csv, threading
-import urllib.request
-from urllib.parse import urljoin
 import cv2
+cv2.setNumThreads(0)
 import numpy as np
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = FastAPI(title="Mother's Hut Meal Verification System")
 
@@ -20,35 +35,43 @@ app.add_middleware(
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "best.pt")
-YOLOE_PROMPT_PATH = os.path.join(BASE_DIR, "yoloe-11s-seg.pt")
-DB_PATH = os.path.join(BASE_DIR, "dispatch.db")
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://postgres.sldwvllytyhnnebitvzg:Arghya19012006@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
+)
+
+
+def get_db():
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL environment variable is not set.")
+    return psycopg2.connect(DATABASE_URL, sslmode="require", connect_timeout=10)
+
 
 model = None
+torch = None
 yoloe_prompt_model = None
 _cached_prompt_classes = None
 _prompt_lock = threading.Lock()
 
 if os.path.exists(MODEL_PATH):
+    import torch as _torch
     from ultralytics import YOLO
+    torch = _torch
+    torch.set_num_threads(1)
+    try:
+        torch.set_num_interop_threads(1)
+    except Exception:
+        pass
     model = YOLO(MODEL_PATH)
     print(f"✅ Loaded custom model '{MODEL_PATH}' ({len(model.names)} classes)")
 else:
     print("⚠️ best.pt not found — running custom model in Demo Mode")
-
-try:
-    from ultralytics import YOLOE
-    p_src = YOLOE_PROMPT_PATH if os.path.exists(YOLOE_PROMPT_PATH) else "yoloe-11s-seg.pt"
-    yoloe_prompt_model = YOLOE(p_src)
-    print("✅ Loaded Hybrid YOLOE Dish Model (Text-Prompt Food Vocabulary)")
-except Exception as e:
-    print(f"⚠️ YOLOE open-vocab model unavailable ({e}) — falling back to custom model only")
 
 DEMO_CLASSES = [
     "Aloo Gobi", "Biryani", "Butter Chicken", "Chana Masala",
     "Chapati", "Dal Makhani", "Gulab Jamun", "Jalebi", "Naan", "Palak Paneer"
 ]
 
-# Strict whole-dish food vocabulary (ingredient-only words removed to prevent splitting one dish into parts)
 FOOD_DISH_VOCAB = [
     "aloo gobi", "aloo paratha", "appam", "baked rasgulla", "bhatura", "bhature",
     "biryani", "boiled egg", "bread", "burger", "butter chicken",
@@ -80,31 +103,34 @@ GENERIC_FOOD_WORDS = {
 
 
 def init_db():
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS dispatch_orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                order_id TEXT NOT NULL,
-                timestamp TEXT NOT NULL,
-                display_time TEXT NOT NULL,
-                expected_json TEXT NOT NULL,
-                detected_json TEXT NOT NULL,
-                fill_pct REAL NOT NULL,
-                min_fill REAL NOT NULL,
-                missing_json TEXT NOT NULL,
-                status TEXT NOT NULL,
-                proof_hash TEXT NOT NULL,
-                payload_json TEXT NOT NULL
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS csv_store (
-                id INTEGER PRIMARY KEY CHECK (id = 1),
-                filename TEXT NOT NULL,
-                items_json TEXT NOT NULL
-            )
-        """)
-        conn.commit()
+    if not DATABASE_URL:
+        print("⚠️ DATABASE_URL not set — skipping DB init until configured")
+        return
+    with closing(get_db()) as conn, conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS dispatch_orders (
+                    id SERIAL PRIMARY KEY,
+                    order_id TEXT NOT NULL,
+                    timestamp TEXT NOT NULL,
+                    display_time TEXT NOT NULL,
+                    expected_json TEXT NOT NULL,
+                    detected_json TEXT NOT NULL,
+                    fill_pct DOUBLE PRECISION NOT NULL,
+                    min_fill DOUBLE PRECISION NOT NULL,
+                    missing_json TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    proof_hash TEXT NOT NULL,
+                    payload_json TEXT NOT NULL
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS csv_store (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    filename TEXT NOT NULL,
+                    items_json TEXT NOT NULL
+                )
+            """)
 
 
 def compute_proof_hash(
@@ -127,7 +153,7 @@ init_db()
 
 def to_base64(pil_img: Image.Image) -> str:
     buf = io.BytesIO()
-    pil_img.save(buf, format="JPEG", quality=92)
+    pil_img.save(buf, format="JPEG", quality=88)
     return f"data:image/jpeg;base64,{base64.b64encode(buf.getvalue()).decode()}"
 
 
@@ -152,7 +178,7 @@ def draw_top_left_label(pil_img: Image.Image, detections: list) -> str:
     y = 14
 
     for text in lines:
-        (tw, th), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+        (tw, th), _ = cv2.getTextSize(text, font, font_scale, thickness)
         x1, y1 = 12, y
         x2, y2 = min(w - 6, x1 + tw + pad_x * 2), min(h - 6, y1 + th + pad_y * 2)
         cv2.rectangle(bgr, (x1, y1), (x2, y2), (255, 255, 255), -1)
@@ -256,19 +282,6 @@ def is_expected_matched(expected_item: str, detected_names: set) -> bool:
     return False
 
 
-def _box_iou(b1: tuple, b2: tuple) -> float:
-    x1 = max(b1[0], b2[0])
-    y1 = max(b1[1], b2[1])
-    x2 = min(b1[2], b2[2])
-    y2 = min(b1[3], b2[3])
-    inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
-    if inter <= 0.0:
-        return 0.0
-    a1 = max(1e-6, (b1[2] - b1[0]) * (b1[3] - b1[1]))
-    a2 = max(1e-6, (b2[2] - b2[0]) * (b2[3] - b2[1]))
-    return inter / (a1 + a2 - inter)
-
-
 def _strip_meta(detections: list) -> list:
     return [
         {"name": d["name"], "confidence": d["confidence"], "source": d["source"]}
@@ -317,7 +330,9 @@ def run_yolo_on_image(
         ann = draw_top_left_label(image, dets) if with_plot else ""
         return dets, ann, False
 
-    results = model.predict(image, conf=conf_val, imgsz=imgsz, verbose=False)
+    with torch.inference_mode():
+        results = model.predict(image, conf=conf_val, imgsz=imgsz, verbose=False)
+
     is_box_model = results[0].boxes is not None
     detections = []
 
@@ -347,118 +362,10 @@ def run_yolo_on_image(
         else:
             annotated_b64 = to_base64(Image.fromarray(results[0].plot()[:, :, ::-1]))
 
+    del results
+    gc.collect()
+
     return detections, annotated_b64, is_box_model
-
-
-def build_dish_prompts(expected_list: list) -> list:
-    """Build a strict food-only prompt list (expected dishes or full food dish vocabulary)."""
-    prompts = []
-    seen = set()
-
-    if expected_list:
-        for item in expected_list:
-            cp = clean_item_phrase(item)
-            if cp and cp not in seen:
-                seen.add(cp)
-                prompts.append(cp)
-            words = cp.split()
-            if len(words) >= 2 and words[-1] not in GENERIC_FOOD_WORDS:
-                last_w = words[-1]
-                if len(last_w) >= 3 and last_w not in seen:
-                    seen.add(last_w)
-                    prompts.append(last_w)
-    else:
-        for dish in FOOD_DISH_VOCAB:
-            if dish not in seen:
-                seen.add(dish)
-                prompts.append(dish)
-
-    return prompts
-
-
-def run_yoloe_dish_prompt(
-    image: Image.Image,
-    prompt_list: list,
-    conf_val: float,
-    with_plot: bool = True,
-    imgsz: int = 640,
-    is_targeted: bool = False,
-    keep_meta: bool = False
-):
-    """Run YOLOE text-prompt model strictly on dish names with class-agnostic NMS & noise filtering."""
-    global _cached_prompt_classes
-    if yoloe_prompt_model is None or not prompt_list:
-        return [], ""
-
-    # Raise floor when scanning 100+ general dish names so low-score color/texture guesses are suppressed
-    effective_conf = conf_val if is_targeted else max(conf_val, 0.35)
-
-    prompt_tuple = tuple(prompt_list)
-    with _prompt_lock:
-        if _cached_prompt_classes != prompt_tuple:
-            text_pe = yoloe_prompt_model.get_text_pe(prompt_list)
-            yoloe_prompt_model.set_classes(prompt_list, text_pe)
-            _cached_prompt_classes = prompt_tuple
-        results = yoloe_prompt_model.predict(
-            image,
-            conf=effective_conf,
-            iou=0.45,
-            agnostic_nms=True,
-            max_det=8,
-            imgsz=imgsz,
-            verbose=False
-        )
-
-    detections = extract_box_detections(
-        results[0],
-        yoloe_prompt_model.names,
-        "Open-Vocab AI",
-        img_size=image.size,
-        include_meta=True
-    )
-
-    # Deduplicate same dish name keeping highest confidence
-    unique = {}
-    for d in detections:
-        k = d["name"].lower()
-        if k not in unique or d["confidence"] > unique[k]["confidence"]:
-            unique[k] = d
-    detections = sorted(unique.values(), key=lambda x: x["confidence"], reverse=True)
-
-    if not is_targeted and detections:
-        # Remove tiny low-confidence corner/garnish detections (<4% frame area and <55% confidence)
-        filtered = [
-            d for d in detections
-            if not (d.get("_area", 1.0) < 0.04 and d["confidence"] < 55.0)
-        ]
-        if filtered:
-            detections = filtered
-
-        # If a main dish fills a large portion of the frame, suppress weak secondary hallucinations
-        top = detections[0]
-        if top.get("_area", 0.0) >= 0.28:
-            min_sec = max(42.0, top["confidence"] * 0.65)
-            detections = [
-                d for i, d in enumerate(detections)
-                if i == 0 or d["confidence"] >= min_sec
-            ]
-
-    if not keep_meta:
-        detections = _strip_meta(detections)
-
-    annotated_b64 = draw_top_left_label(image, detections) if with_plot else ""
-    return detections, annotated_b64
-
-
-def merge_detections(primary: list, secondary: list) -> list:
-    merged = {}
-    for d in primary + secondary:
-        key = d["name"].lower().strip()
-        if key not in merged or d["confidence"] > merged[key]["confidence"]:
-            merged[key] = d
-    out = list(merged.values())
-    out.sort(key=lambda x: x["confidence"], reverse=True)
-    return out
 
 
 def run_hybrid_inference(
@@ -469,126 +376,9 @@ def run_hybrid_inference(
     with_plot: bool = True,
     is_live: bool = False
 ):
-    """Fast dish-only Hybrid pipeline for Live Scan, Capture, and Upload."""
-    mode = (mode or "hybrid").strip().lower()
+    """best.pt-only inference pipeline optimized for 512 MB RAM."""
     imgsz = 320 if is_live else 640
-
-    # 1. Pure 18-Dish Custom Model
-    if mode == "custom" or yoloe_prompt_model is None:
-        dets, ann, _ = run_yolo_on_image(image, conf_val, with_plot=with_plot, imgsz=imgsz)
-        return dets, ann
-
-    # 2. Pure Open-Vocab Any Dish Mode (strictly dish vocabulary)
-    if mode == "open":
-        prompts = build_dish_prompts(expected_list)
-        dets, ann = run_yoloe_dish_prompt(
-            image, prompts, conf_val, with_plot=with_plot, imgsz=imgsz, is_targeted=bool(expected_list)
-        )
-        if expected_list and not dets and not is_live:
-            dets, ann = run_yoloe_dish_prompt(
-                image, build_dish_prompts([]), conf_val, with_plot=with_plot, imgsz=imgsz, is_targeted=False
-            )
-        return dets, ann
-
-    # 3. Auto Hybrid Mode with Expected Order
-    if expected_list:
-        trained_exp = [e for e in expected_list if matches_trained_menu(e) is not None]
-        open_exp = [e for e in expected_list if matches_trained_menu(e) is None]
-
-        if trained_exp and not open_exp:
-            dets, ann, _ = run_yolo_on_image(image, conf_val, with_plot=with_plot, imgsz=imgsz)
-            if dets or is_live:
-                return dets, ann
-            return run_yoloe_dish_prompt(
-                image, build_dish_prompts(trained_exp), conf_val, with_plot=with_plot, imgsz=imgsz, is_targeted=True
-            )
-
-        if open_exp and not trained_exp:
-            prompts = build_dish_prompts(open_exp)
-            dets, ann = run_yoloe_dish_prompt(
-                image, prompts, conf_val, with_plot=with_plot, imgsz=imgsz, is_targeted=True
-            )
-            if not dets and not is_live:
-                dets, ann = run_yoloe_dish_prompt(
-                    image, build_dish_prompts([]), conf_val, with_plot=with_plot, imgsz=imgsz, is_targeted=False
-                )
-            return dets, ann
-
-        custom_dets, _, _ = run_yolo_on_image(image, conf_val, with_plot=False, imgsz=imgsz)
-        open_dets, _ = run_yoloe_dish_prompt(
-            image, build_dish_prompts(open_exp), conf_val, with_plot=False, imgsz=imgsz, is_targeted=True
-        )
-        dets = merge_detections(custom_dets, open_dets)
-        ann = draw_top_left_label(image, dets) if with_plot else ""
-        return dets, ann
-
-    # 4. Detection-Only (No Expected Order — Reference Photo Upload, Meal Upload, or Live Scan)
-    custom_dets, _, is_box_model = run_yolo_on_image(
-        image, conf_val, with_plot=False, imgsz=imgsz, include_meta=True
-    )
-
-    if is_live and custom_dets and custom_dets[0]["confidence"] >= 65.0:
-        return _strip_meta(custom_dets), ""
-
-    open_dets, _ = run_yoloe_dish_prompt(
-        image,
-        build_dish_prompts([]),
-        conf_val,
-        with_plot=False,
-        imgsz=imgsz,
-        is_targeted=False,
-        keep_meta=True
-    )
-
-    if is_box_model:
-        kept_open = []
-        for od in open_dets:
-            if od["confidence"] < 55.0:
-                continue
-            od_box = od.get("_bbox")
-            overlaps_custom = (
-                od_box is not None and any(
-                    cd.get("_bbox") is not None and _box_iou(od_box, cd["_bbox"]) >= 0.35
-                    for cd in custom_dets
-                )
-            )
-            if not overlaps_custom:
-                kept_open.append(od)
-        dets = _strip_meta(merge_detections(custom_dets, kept_open))
-        ann = draw_top_left_label(image, dets) if with_plot else ""
-        return dets, ann
-
-    # Custom model is a classifier (probs): protect confident 18-dish predictions from weak open-vocab noise
-    custom_top_conf = custom_dets[0]["confidence"] if custom_dets else 0.0
-    trained_low = {n.lower() for n in get_trained_class_names()}
-
-    if custom_top_conf >= 65.0:
-        strong_non_18 = [
-            d for d in open_dets
-            if d["name"].lower() not in trained_low
-            and d["confidence"] >= max(68.0, custom_top_conf)
-        ]
-        if strong_non_18:
-            dets = _strip_meta(strong_non_18)
-            ann = draw_top_left_label(image, dets) if with_plot else ""
-            return dets, ann
-
-        distinct_sides = [
-            d for d in open_dets
-            if d["name"].lower() != custom_dets[0]["name"].lower()
-            and d["confidence"] >= 62.0
-        ]
-        dets = _strip_meta(merge_detections(custom_dets, distinct_sides))
-        ann = draw_top_left_label(image, dets) if with_plot else ""
-        return dets, ann
-
-    if open_dets:
-        dets = _strip_meta(open_dets)
-        ann = draw_top_left_label(image, dets) if with_plot else ""
-        return dets, ann
-
-    dets = _strip_meta(custom_dets)
-    ann = draw_top_left_label(image, dets) if with_plot else ""
+    dets, ann, _ = run_yolo_on_image(image, conf_val, with_plot=with_plot, imgsz=imgsz)
     return dets, ann
 
 
@@ -596,84 +386,63 @@ def run_hybrid_inference(
 def home():
     return FileResponse(
         os.path.join(BASE_DIR, "static", "index.html"),
-        headers={
-            "Cache-Control": "no-store, no-cache, must-revalidate"
-        }
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate"}
     )
 
 
 @app.get("/logo")
 def get_logo():
     for folder in ["static", "."]:
-        for name in [
-            "logo.jpeg", "logo.jpg", "logo.png", "logo.webp"
-        ]:
+        for name in ["logo.jpeg", "logo.jpg", "logo.png", "logo.webp"]:
             path = os.path.join(BASE_DIR, folder, name)
-
             if os.path.exists(path):
                 return FileResponse(path)
-
-    raise HTTPException(
-        status_code=404,
-        detail="Logo not found"
-    )
+    raise HTTPException(status_code=404, detail="Logo not found")
 
 
 @app.get("/classes")
 def classes():
     if model is not None:
-        names = sorted([
-            str(n).title() for n in model.names.values()
-        ])
-
+        names = sorted([str(n).title() for n in model.names.values()])
         return {
             "classes": names,
             "total": int(len(names)),
             "demo": False,
-            "hybrid": bool(yoloe_prompt_model is not None)
+            "hybrid": False
         }
 
     return {
         "classes": DEMO_CLASSES,
         "total": int(len(DEMO_CLASSES)),
         "demo": True,
-        "hybrid": bool(yoloe_prompt_model is not None)
+        "hybrid": False
     }
 
 
 @app.get("/orders")
 def list_orders(q: str = ""):
-    """Return persisted dispatch orders from SQLite."""
-
+    """Return persisted dispatch orders from PostgreSQL."""
     query = q.strip().lower()
 
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-
-        if query:
-            like = f"%{query}%"
-
-            rows = conn.execute(
-                """
-                SELECT * FROM dispatch_orders
-                WHERE LOWER(order_id) LIKE ?
-                OR LOWER(detected_json) LIKE ?
-                OR LOWER(expected_json) LIKE ?
-                ORDER BY id DESC LIMIT 100
-                """,
-                (like, like, like)
-            ).fetchall()
-
-        else:
-            rows = conn.execute(
-                """
-                SELECT * FROM dispatch_orders
-                ORDER BY id DESC LIMIT 100
-                """
-            ).fetchall()
+    with closing(get_db()) as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if query:
+                like = f"%{query}%"
+                cur.execute(
+                    """
+                    SELECT * FROM dispatch_orders
+                    WHERE LOWER(order_id) LIKE %s
+                    OR LOWER(detected_json) LIKE %s
+                    OR LOWER(expected_json) LIKE %s
+                    ORDER BY id DESC LIMIT 100
+                    """,
+                    (like, like, like)
+                )
+            else:
+                cur.execute("SELECT * FROM dispatch_orders ORDER BY id DESC LIMIT 100")
+            rows = cur.fetchall()
 
     results = []
-
     for r in rows:
         results.append({
             "dbId": r["id"],
@@ -695,13 +464,9 @@ def list_orders(q: str = ""):
 
 @app.post("/orders")
 def save_order(payload: dict = Body(...)):
-    """Persist a verified order permanently in SQLite."""
-
+    """Persist a verified order permanently in PostgreSQL."""
     order_id = str(payload.get("orderId", "ORD-101"))
-    display_time = str(
-        payload.get("time", datetime.now().strftime("%I:%M %p"))
-    )
-
+    display_time = str(payload.get("time", datetime.now().strftime("%I:%M %p")))
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     expected = payload.get("expected", [])
@@ -712,164 +477,93 @@ def save_order(payload: dict = Body(...)):
     status = str(payload.get("status", "DETECTION_ONLY"))
     raw = payload.get("raw", {})
 
-    img_b64 = (
-        raw.get("annotated_image", "")
-        or raw.get("original_image", "")
-    )
+    img_b64 = raw.get("annotated_image", "") or raw.get("original_image", "")
 
     proof_hash = compute_proof_hash(
-        order_id,
-        timestamp,
-        fill_pct,
-        detected,
-        status,
-        img_b64
+        order_id, timestamp, fill_pct, detected, status, img_b64
     )
 
-    with sqlite3.connect(DB_PATH) as conn:
-        cur = conn.execute(
-            """
-            INSERT INTO dispatch_orders
-            (
-                order_id, timestamp, display_time,
-                expected_json, detected_json,
-                fill_pct, min_fill, missing_json,
-                status, proof_hash, payload_json
+    with closing(get_db()) as conn, conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO dispatch_orders
+                (
+                    order_id, timestamp, display_time,
+                    expected_json, detected_json,
+                    fill_pct, min_fill, missing_json,
+                    status, proof_hash, payload_json
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+                """,
+                (
+                    order_id, timestamp, display_time,
+                    json.dumps(expected), json.dumps(detected),
+                    fill_pct, min_fill, json.dumps(missing),
+                    status, proof_hash, json.dumps(raw)
+                )
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                order_id,
-                timestamp,
-                display_time,
-                json.dumps(expected),
-                json.dumps(detected),
-                fill_pct,
-                min_fill,
-                json.dumps(missing),
-                status,
-                proof_hash,
-                json.dumps(raw)
-            )
-        )
+            db_id = cur.fetchone()[0]
 
-        conn.commit()
-        db_id = cur.lastrowid
-
-    return {
-        "dbId": db_id,
-        "timestamp": timestamp,
-        "proofHash": proof_hash
-    }
+    return {"dbId": db_id, "timestamp": timestamp, "proofHash": proof_hash}
 
 
 @app.patch("/orders/{db_id}")
 def update_order_status(db_id: int, payload: dict = Body(...)):
     """Update order status on Human Verification."""
-
     new_status = str(payload.get("status", "")).strip()
-
     if not new_status:
-        raise HTTPException(
-            status_code=400,
-            detail="Missing status"
-        )
+        raise HTTPException(status_code=400, detail="Missing status")
 
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
+    with closing(get_db()) as conn, conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM dispatch_orders WHERE id = %s", (db_id,))
+            row = cur.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail="Order not found")
 
-        row = conn.execute(
-            "SELECT * FROM dispatch_orders WHERE id = ?",
-            (db_id,)
-        ).fetchone()
+            raw = json.loads(row["payload_json"])
+            if "verification" in raw:
+                raw["verification"]["status"] = new_status
 
-        if not row:
-            raise HTTPException(
-                status_code=404,
-                detail="Order not found"
+            detected = json.loads(row["detected_json"])
+            img_b64 = raw.get("annotated_image", "") or raw.get("original_image", "")
+
+            new_hash = compute_proof_hash(
+                row["order_id"], row["timestamp"], row["fill_pct"],
+                detected, new_status, img_b64
             )
 
-        raw = json.loads(row["payload_json"])
-
-        if "verification" in raw:
-            raw["verification"]["status"] = new_status
-
-        detected = json.loads(row["detected_json"])
-
-        img_b64 = (
-            raw.get("annotated_image", "")
-            or raw.get("original_image", "")
-        )
-
-        new_hash = compute_proof_hash(
-            row["order_id"],
-            row["timestamp"],
-            row["fill_pct"],
-            detected,
-            new_status,
-            img_b64
-        )
-
-        conn.execute(
-            """
-            UPDATE dispatch_orders
-            SET status = ?, proof_hash = ?, payload_json = ?
-            WHERE id = ?
-            """,
-            (
-                new_status,
-                new_hash,
-                json.dumps(raw),
-                db_id
+            cur.execute(
+                """
+                UPDATE dispatch_orders
+                SET status = %s, proof_hash = %s, payload_json = %s
+                WHERE id = %s
+                """,
+                (new_status, new_hash, json.dumps(raw), db_id)
             )
-        )
 
-        conn.commit()
-
-    return {
-        "dbId": db_id,
-        "status": new_status,
-        "proofHash": new_hash
-    }
+    return {"dbId": db_id, "status": new_status, "proofHash": new_hash}
 
 
 @app.post("/fetch-csv")
 async def fetch_csv_urls(file: UploadFile = File(...)):
-    """Parse an uploaded CSV and persist it in SQLite until manually closed."""
-
+    """Parse an uploaded CSV and persist it in PostgreSQL until manually closed."""
     try:
         raw_bytes = await file.read()
-        text = raw_bytes.decode(
-            "utf-8-sig",
-            errors="ignore"
-        )
-
+        text = raw_bytes.decode("utf-8-sig", errors="ignore")
     except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail="Could not read CSV file."
-        )
+        raise HTTPException(status_code=400, detail="Could not read CSV file.")
 
     reader = csv.reader(io.StringIO(text))
-
-    rows = [
-        r for r in reader
-        if any(cell.strip() for cell in r)
-    ]
-
+    rows = [r for r in reader if any(cell.strip() for cell in r)]
     if not rows:
-        raise HTTPException(
-            status_code=400,
-            detail="CSV file is empty."
-        )
+        raise HTTPException(status_code=400, detail="CSV file is empty.")
 
     headers = [h.strip().lower() for h in rows[0]]
-
     has_header = any(
-        h in (
-            "image_url", "url", "link",
-            "img", "image", "item_name", "item_id"
-        )
+        h in ("image_url", "url", "link", "img", "image", "item_name", "item_id")
         for h in headers
     )
 
@@ -882,17 +576,13 @@ async def fetch_csv_urls(file: UploadFile = File(...)):
             if col in headers:
                 url_idx = headers.index(col)
                 break
-
         for col in ("item_name", "name", "dish", "title"):
             if col in headers:
                 name_idx = headers.index(col)
                 break
-
         if "item_id" in headers:
             id_idx = headers.index("item_id")
-
         data_rows = rows[1:]
-
     else:
         data_rows = rows
 
@@ -901,234 +591,132 @@ async def fetch_csv_urls(file: UploadFile = File(...)):
 
     for r in data_rows:
         img_url = ""
-
         if url_idx is not None and url_idx < len(r):
             candidate = r[url_idx].strip()
-
             if candidate.startswith(("http://", "https://")):
                 img_url = candidate
-
         if not img_url:
             for cell in r:
                 c = cell.strip()
-
                 if c.startswith(("http://", "https://")):
                     img_url = c
                     break
-
         if not img_url or img_url in seen_urls:
             continue
-
         seen_urls.add(img_url)
 
         item_name = ""
-
         if name_idx is not None and name_idx < len(r):
             item_name = r[name_idx].strip().replace("\xa0", " ")
-
         elif len(r) >= 2 and url_idx != 0:
             item_name = r[0].strip()
 
-        item_id = (
-            r[id_idx].strip()
-            if id_idx is not None and id_idx < len(r)
-            else ""
-        )
-
-        items.append({
-            "id": item_id,
-            "name": item_name or f"Item {len(items) + 1}",
-            "url": img_url
-        })
+        item_id = r[id_idx].strip() if id_idx is not None and id_idx < len(r) else ""
+        items.append({"id": item_id, "name": item_name or f"Item {len(items) + 1}", "url": img_url})
 
     if not items:
-        raise HTTPException(
-            status_code=400,
-            detail="No valid image URLs found in CSV."
-        )
+        raise HTTPException(status_code=400, detail="No valid image URLs found in CSV.")
 
     filename = file.filename or "menu.csv"
+    with closing(get_db()) as conn, conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO csv_store (id, filename, items_json)
+                VALUES (1, %s, %s)
+                ON CONFLICT (id) DO UPDATE SET
+                    filename = EXCLUDED.filename,
+                    items_json = EXCLUDED.items_json
+                """,
+                (filename, json.dumps(items))
+            )
 
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            """
-            INSERT OR REPLACE INTO csv_store (id, filename, items_json)
-            VALUES (1, ?, ?)
-            """,
-            (filename, json.dumps(items))
-        )
-        conn.commit()
-
-    return {
-        "filename": filename,
-        "items": items,
-        "total": len(items)
-    }
+    return {"filename": filename, "items": items, "total": len(items)}
 
 
 @app.get("/csv-items")
 def get_saved_csv():
     """Return persisted CSV gallery items if a CSV is stored."""
-
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        row = conn.execute(
-            "SELECT filename, items_json FROM csv_store WHERE id = 1"
-        ).fetchone()
+    with closing(get_db()) as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT filename, items_json FROM csv_store WHERE id = 1")
+            row = cur.fetchone()
 
     if not row:
         return {"filename": "", "items": [], "total": 0}
 
     items = json.loads(row["items_json"])
-    return {
-        "filename": row["filename"],
-        "items": items,
-        "total": len(items)
-    }
+    return {"filename": row["filename"], "items": items, "total": len(items)}
 
 
 @app.delete("/csv-items")
 def clear_saved_csv():
-    """Manually close/remove the persisted CSV file from SQLite."""
-
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("DELETE FROM csv_store WHERE id = 1")
-        conn.commit()
-
+    """Manually close/remove the persisted CSV file from PostgreSQL."""
+    with closing(get_db()) as conn, conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM csv_store WHERE id = 1")
     return {"cleared": True}
 
 
 @app.get("/proxy-image")
 def proxy_image(url: str):
     """Fetch an external image URL via backend."""
-
     clean_url = url.strip()
-
     if not clean_url.startswith(("http://", "https://")):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid URL"
-        )
+        raise HTTPException(status_code=400, detail="Invalid URL")
 
     try:
-        req = urllib.request.Request(
-            clean_url,
-            headers={"User-Agent": "Mozilla/5.0"}
-        )
-
+        req = urllib.request.Request(clean_url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=10) as resp:
-            content_type = (
-                resp.headers.get("Content-Type", "image/jpeg")
-                .split(";")[0].strip()
-            )
+            content_type = resp.headers.get("Content-Type", "image/jpeg").split(";")[0].strip()
             data = resp.read()
-
         if not content_type.startswith("image/"):
-            raise HTTPException(
-                status_code=400,
-                detail="Not an image"
-            )
-
-        return Response(
-            content=data,
-            media_type=content_type,
-            headers={"Cache-Control": "public, max-age=3600"}
-        )
-
+            raise HTTPException(status_code=400, detail="Not an image")
+        return Response(content=data, media_type=content_type, headers={"Cache-Control": "public, max-age=3600"})
     except HTTPException:
         raise
-
     except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail="Could not fetch image"
-        )
+        raise HTTPException(status_code=400, detail="Could not fetch image")
 
 
 @app.post("/predict-url")
-async def predict_from_url(
-    url: str = Form(...),
-    conf: float = Form(0.25)
-):
+async def predict_from_url(url: str = Form(...), conf: float = Form(0.25)):
     """Fetch a reference image from a URL or extract images from a page."""
-
     clean_url = url.strip()
-
     if not clean_url.startswith(("http://", "https://")):
-        raise HTTPException(
-            status_code=400,
-            detail="URL must start with http:// or https://"
-        )
+        raise HTTPException(status_code=400, detail="URL must start with http:// or https://")
 
     try:
-        req = urllib.request.Request(
-            clean_url,
-            headers={"User-Agent": "Mozilla/5.0"}
-        )
-
+        req = urllib.request.Request(clean_url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=10) as resp:
-            content_type = resp.headers.get(
-                "Content-Type", ""
-            ).lower()
+            content_type = resp.headers.get("Content-Type", "").lower()
             raw_bytes = resp.read()
-
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Could not fetch URL: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Could not fetch URL: {str(e)}")
 
     if "text/html" in content_type:
         html = raw_bytes.decode("utf-8", errors="ignore")
-
-        raw_srcs = re.findall(
-            r'<img[^>]+src=["\']([^"\']+)["\']',
-            html,
-            flags=re.IGNORECASE
-        )
-
-        images = []
-        seen = set()
-
+        raw_srcs = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', html, flags=re.IGNORECASE)
+        images, seen = [], set()
         for src in raw_srcs:
             abs_url = urljoin(clean_url, src)
             low = abs_url.lower()
-
-            if (
-                abs_url in seen
-                or low.endswith(".svg")
-                or "favicon" in low
-            ):
+            if abs_url in seen or low.endswith(".svg") or "favicon" in low:
                 continue
-
             seen.add(abs_url)
             images.append(abs_url)
-
-        return {
-            "type": "gallery",
-            "images": images[:20]
-        }
+        return {"type": "gallery", "images": images[:20]}
 
     try:
-        image = ImageOps.exif_transpose(
-            Image.open(io.BytesIO(raw_bytes))
-        ).convert("RGB")
-
+        image = ImageOps.exif_transpose(Image.open(io.BytesIO(raw_bytes))).convert("RGB")
+        del raw_bytes
+        image.thumbnail((800, 800))
     except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail="URL did not return a valid image."
-        )
+        raise HTTPException(status_code=400, detail="URL did not return a valid image.")
 
     fill_pct = float(estimate_fill_percentage(image))
-
     detections, _ = run_hybrid_inference(
-        image,
-        float(conf),
-        mode="hybrid",
-        expected_list=[],
-        with_plot=False,
-        is_live=False
+        image, float(conf), mode="hybrid", expected_list=[], with_plot=False, is_live=False
     )
 
     return {
@@ -1152,58 +740,30 @@ async def predict(
 
     try:
         img_bytes = await file.read()
-
-        image = ImageOps.exif_transpose(
-            Image.open(io.BytesIO(img_bytes))
-        ).convert("RGB")
-
+        image = ImageOps.exif_transpose(Image.open(io.BytesIO(img_bytes))).convert("RGB")
+        del img_bytes
+        image.thumbnail((800, 800))
     except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid image file."
-        )
+        raise HTTPException(status_code=400, detail="Invalid image file.")
 
     fill_pct = float(estimate_fill_percentage(image))
     min_fill_val = float(min_fill)
-
     quantity_ok = bool(fill_pct >= min_fill_val)
     conf_val = float(conf)
 
-    expected_list = [
-        item.strip()
-        for item in expected.split(",")
-        if item.strip()
-    ]
-
+    expected_list = [item.strip() for item in expected.split(",") if item.strip()]
     original_b64 = "" if live else to_base64(image)
 
     detections, annotated_b64 = run_hybrid_inference(
-        image,
-        conf_val,
-        mode=mode,
-        expected_list=expected_list,
-        with_plot=(not live),
-        is_live=live
+        image, conf_val, mode=mode, expected_list=expected_list,
+        with_plot=(not live), is_live=live
     )
 
-    speed_ms = float(
-        round((time.perf_counter() - start) * 1000, 1)
-    )
+    speed_ms = float(round((time.perf_counter() - start) * 1000, 1))
+    detected_names = {d["name"] for d in detections}
 
-    detected_names = {
-        d["name"] for d in detections
-    }
-
-    matched = [
-        item for item in expected_list
-        if is_expected_matched(item, detected_names)
-    ]
-
-    missing = [
-        item for item in expected_list
-        if item not in matched
-    ]
-
+    matched = [item for item in expected_list if is_expected_matched(item, detected_names)]
+    missing = [item for item in expected_list if item not in matched]
     extra = (
         [
             name for name in detected_names
@@ -1214,13 +774,10 @@ async def predict(
 
     if not quantity_ok:
         status = "DEFECT_QUANTITY"
-
     elif not expected_list:
         status = "DETECTION_ONLY"
-
     elif len(missing) == 0:
         status = "VERIFIED"
-
     else:
         status = "INCOMPLETE"
 
@@ -1230,13 +787,11 @@ async def predict(
         "detections": detections,
         "count": int(len(detections)),
         "speed_ms": speed_ms,
-
         "quantity": {
             "fill_pct": float(fill_pct),
             "min_fill": float(min_fill_val),
             "ok": bool(quantity_ok)
         },
-
         "verification": {
             "status": status,
             "expected": expected_list,
@@ -1249,10 +804,5 @@ async def predict(
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(
-        "app:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=False
-    )
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)
