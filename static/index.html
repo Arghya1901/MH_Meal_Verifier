@@ -10,67 +10,69 @@
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #fcfaf8;
-      background-image: radial-gradient(#e5e0da 1.1px, transparent 1.1px);
-      background-size: 20px 20px;
+      background-color: #faf3e6;
+      background-image: radial-gradient(#e7d9bf 1px, transparent 1px);
+      background-size: 22px 22px;
     }
     @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
     @keyframes scanSweep {
       0% { top: 4%; opacity: 0; }
-      15% { opacity: 1; }
-      85% { opacity: 1; }
+      15% { opacity: 0.9; }
+      85% { opacity: 0.9; }
       100% { top: 92%; opacity: 0; }
     }
     @keyframes stampPop {
-      0% { opacity: 0; transform: scale(1.18) rotate(-6deg); }
-      100% { opacity: 1; transform: scale(1) rotate(-3deg); }
+      0% { opacity: 0; transform: scale(1.12) rotate(-5deg); }
+      100% { opacity: 1; transform: scale(1) rotate(-2.5deg); }
     }
-    .animate-fade-up { animation: fadeSlideUp 0.3s ease-out; }
-    .animate-stamp { animation: stampPop 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .animate-fade-up { animation: fadeSlideUp 0.25s ease-out; }
+    .animate-stamp { animation: stampPop 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     .scan-line {
       position: absolute;
       left: 0;
       right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, #18181b, transparent);
-      box-shadow: 0 0 10px rgba(24, 24, 27, 0.45);
-      animation: scanSweep 1.35s ease-in-out infinite;
+      background: linear-gradient(90deg, transparent, #e2b44b, #5d0f18, transparent);
+      box-shadow: 0 0 8px rgba(93, 15, 24, 0.35);
+      animation: scanSweep 1.5s ease-in-out infinite;
     }
   </style>
 </head>
-<body class="min-h-screen text-[#18181b] antialiased relative overflow-x-hidden tabular-nums">
+<body class="min-h-screen text-[#2a1215] antialiased relative overflow-x-hidden tabular-nums flex flex-col">
 
-  <!-- 1. FULL-WIDTH CLEAN WHITE NAVBAR -->
-  <nav class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+  <!-- 1. FULL-WIDTH DEEP MAROON NAVBAR -->
+  <nav class="sticky top-0 z-30 bg-[#520a13] border-b border-[#d9a441]/40 shadow-sm">
     <div class="w-full max-w-[1680px] mx-auto px-3 sm:px-6 lg:px-10 min-h-16 py-2 lg:py-0 lg:h-16 flex items-center justify-between gap-2 sm:gap-4">
       <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-        <div class="w-11 h-11 lg:w-10 lg:h-10 rounded-xl bg-white border border-slate-200 p-0.5 shadow-xs overflow-hidden flex items-center justify-center shrink-0">
+        <div class="w-11 h-11 lg:w-10 lg:h-10 rounded-xl bg-white border border-[#e8c36b]/70 p-0.5 shadow-xs overflow-hidden flex items-center justify-center shrink-0">
           <img src="/logo" alt="Mother's Hut Logo" class="w-full h-full object-contain rounded-lg"
-            onerror="this.outerHTML='<svg class=\'w-6 h-6 text-[#18181b]\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1v-9.5z\'/></svg>'" />
+            onerror="this.outerHTML='<svg class=\'w-6 h-6 text-[#5d0f18]\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1v-9.5z\'/></svg>'" />
         </div>
         <div class="hidden lg:block min-w-0">
-          <span class="font-bold text-[#18181b] text-lg tracking-tight block leading-none whitespace-nowrap">Mother's Hut</span>
-          <span class="text-[10px] font-semibold text-slate-400 tracking-widest uppercase block mt-0.5 whitespace-nowrap">Dispatch QA System</span>
+          <span class="font-bold text-white text-lg tracking-tight block leading-none whitespace-nowrap">Mother's Hut</span>
+          <span class="text-[10px] font-semibold text-[#f2c65d] tracking-widest uppercase block mt-1 whitespace-nowrap">Kitchen Quality Assurance</span>
         </div>
       </div>
 
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        <a href="#workspace" class="hidden lg:inline-flex items-center px-4 py-1.5 rounded-xl bg-[#faf2ee] text-[#ab6446] text-sm font-semibold">
+        <a href="#workspace" class="hidden lg:inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#f2c65d] text-[#4b0811] text-sm font-bold shadow-xs">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
           Meal Verifier
         </a>
-        <a href="#logSection" class="hidden lg:inline-flex items-center px-4 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 text-sm font-medium transition">
+        <a href="#logSection" class="hidden lg:inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[#f7e9d4] hover:bg-white/10 text-sm font-medium transition">
+          <svg class="w-4 h-4 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664"/></svg>
           Dispatch Log
         </a>
-        <span id="statusBadge" class="inline-flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3.5 py-1 lg:py-1.5 rounded-full text-[11px] lg:text-xs font-semibold bg-white text-slate-700 border border-slate-200 shadow-xs whitespace-nowrap">
-          <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
-          Loading model...
+        <span id="statusBadge" class="inline-flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3.5 py-1 lg:py-1.5 rounded-full text-[11px] lg:text-xs font-semibold bg-[#fffdf8] text-[#4b0811] border border-[#f2c65d]/60 shadow-xs whitespace-nowrap">
+          <span class="w-2 h-2 rounded-full bg-[#d9a441]"></span>
+          Connecting...
         </span>
         <!-- Mobile / Tablet Slider Menu Button -->
         <button id="mobileMenuBtn" type="button" aria-label="Open menu"
-          class="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#18181b] transition shrink-0">
+          class="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/15 transition shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
@@ -80,172 +82,185 @@
   </nav>
 
   <!-- MOBILE / TABLET SLIDE-OUT MENU DRAWER -->
-  <div id="mobileDrawerBackdrop" class="lg:hidden fixed inset-0 z-40 bg-slate-900/45 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300"></div>
-  <aside id="mobileDrawer" class="lg:hidden fixed top-0 right-0 z-50 h-full w-72 max-w-[82vw] bg-white shadow-2xl border-l border-slate-200 transform translate-x-full transition-transform duration-300 ease-out flex flex-col">
-    <div class="px-5 py-4 border-b border-slate-200/80 flex items-center justify-between">
+  <div id="mobileDrawerBackdrop" class="lg:hidden fixed inset-0 z-40 bg-[#2a070b]/55 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300"></div>
+  <aside id="mobileDrawer" class="lg:hidden fixed top-0 right-0 z-50 h-full w-72 max-w-[82vw] bg-[#520a13] text-white shadow-2xl border-l border-[#d9a441]/35 transform translate-x-full transition-transform duration-300 ease-out flex flex-col">
+    <div class="px-5 py-4 border-b border-white/15 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <img src="/logo" alt="Logo" class="w-8 h-8 object-contain rounded-lg border border-slate-200 p-0.5" onerror="this.style.display='none'" />
+        <img src="/logo" alt="Logo" class="w-8 h-8 object-contain rounded-lg bg-white border border-[#f2c65d]/60 p-0.5" onerror="this.style.display='none'" />
         <div>
-          <div class="font-bold text-sm text-[#18181b] leading-none">Mother's Hut</div>
-          <div class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase mt-0.5">QA Navigation</div>
+          <div class="font-bold text-sm text-white leading-none">Mother's Hut</div>
+          <div class="text-[10px] font-semibold text-[#f2c65d] tracking-wider uppercase mt-0.5">Kitchen QA</div>
         </div>
       </div>
       <button id="closeDrawerBtn" type="button" aria-label="Close menu"
-        class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">
+        class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white font-bold flex items-center justify-center">
         ✕
       </button>
     </div>
 
     <div class="p-4 space-y-2 flex-1">
       <button type="button" onclick="drawerNavigate('workspace')"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#faf2ee] text-[#ab6446] text-sm font-semibold text-left">
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-full bg-[#f2c65d] text-[#4b0811] text-sm font-bold text-left shadow-xs">
         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
         Meal Verifier
       </button>
       <button type="button" onclick="drawerNavigate('camera')"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-100 text-sm font-medium text-left transition">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/></svg>
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#f7e9d4] hover:bg-white/10 text-sm font-medium text-left transition">
+        <svg class="w-4 h-4 shrink-0 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/></svg>
         Kitchen Camera Scanner
       </button>
       <button type="button" onclick="drawerNavigate('ticket')"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-100 text-sm font-medium text-left transition">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664"/></svg>
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#f7e9d4] hover:bg-white/10 text-sm font-medium text-left transition">
+        <svg class="w-4 h-4 shrink-0 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664"/></svg>
         Verification Ticket
       </button>
       <button type="button" onclick="drawerNavigate('log')"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-100 text-sm font-medium text-left transition">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#f7e9d4] hover:bg-white/10 text-sm font-medium text-left transition">
+        <svg class="w-4 h-4 shrink-0 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
         Dispatch Log
       </button>
     </div>
 
-    <div class="p-4 border-t border-slate-100 text-[11px] text-slate-400">
-      Synced live with laptop SQLite vault
+    <div class="p-4 border-t border-white/15 text-[11px] text-[#e7cfb2]">
+      NH-12, Krishnanagar • Est. 2013
     </div>
   </aside>
 
-  <!-- 2. FULL-WIDTH COMPACT HERO BAR -->
+  <!-- 2. HERO HEADER WITH BOTANICAL LEAF MOTIF -->
   <section class="w-full max-w-[1680px] mx-auto px-3 sm:px-6 lg:px-10 pt-4 sm:pt-5 pb-1">
-    <div class="bg-white/90 backdrop-blur-xs rounded-2xl border border-slate-200/80 shadow-[0_2px_14px_rgba(15,23,42,0.03)] px-4 py-3.5 sm:px-6 sm:py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5 lg:gap-4">
-      <div class="flex items-center gap-3 sm:gap-4">
-        <div class="inline-flex items-center justify-center p-1 rounded-xl bg-white border border-slate-200/80 shadow-xs shrink-0">
+    <div class="relative overflow-hidden bg-[#fffdf8] rounded-2xl border border-[#eadcc4] border-b-[3px] border-b-[#5d0f18] shadow-[0_4px_18px_rgba(93,15,24,0.05)] px-4 py-4 sm:px-7 sm:py-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <!-- Subtle Leaf Watermark (Top-Left, matching workspace screenshot) -->
+      <svg class="pointer-events-none select-none absolute -top-2 -left-2 w-24 h-24 text-[#ebdcc2] opacity-70" viewBox="0 0 120 120" fill="currentColor" aria-hidden="true">
+        <path d="M18 14c22 4 38 18 42 40-22-4-38-18-42-40zm44 4c16 14 22 34 16 54-16-14-22-34-16-54zM8 46c18-2 34 6 42 24-18 2-34-6-42-24z"/>
+      </svg>
+
+      <div class="relative flex items-center gap-3.5 sm:gap-4">
+        <div class="inline-flex items-center justify-center p-1.5 rounded-xl bg-white border border-[#e5d5ba] shadow-xs shrink-0">
           <img src="/logo" alt="Mother's Hut Emblem" class="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-lg"
             onerror="this.style.display='none'" />
         </div>
         <div>
-          <h1 class="text-lg sm:text-2xl font-extrabold text-[#18181b] tracking-tight leading-snug">
-            Mother's Hut <span class="text-[#ab6446]">Meal Verification</span>
+          <h1 class="text-lg sm:text-2xl font-extrabold text-[#5d0f18] tracking-tight leading-snug">
+            Meal Verifier <span class="text-[#b87b1e]">System</span>
           </h1>
-          <p class="text-slate-500 text-xs sm:text-sm mt-0.5">
-            Portion quantity check, AI dish verification & human-in-the-loop dispatch guard
+          <p class="text-[#785f56] italic text-xs sm:text-sm mt-0.5">
+            Verify meal authenticity, portion fill & dispatch readiness
           </p>
+          <svg class="w-28 h-2 mt-1 text-[#d9a441]" viewBox="0 0 120 8" fill="none" aria-hidden="true">
+            <path d="M2 5.5C34 2 76 2 118 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
         </div>
       </div>
 
       <!-- Unified Minimal Stats & Step Bar -->
-      <div class="w-full lg:w-auto flex lg:inline-flex items-center justify-around lg:justify-end gap-2 sm:gap-5 bg-slate-50/70 px-3 sm:px-5 py-2.5 rounded-2xl border border-slate-200/70 text-xs">
+      <div class="relative w-full lg:w-auto flex lg:inline-flex items-center justify-around lg:justify-end gap-2 sm:gap-5 bg-[#faf2e3] px-3 sm:px-5 py-2.5 rounded-2xl border border-[#eadcc4] text-xs">
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <span class="text-slate-400 font-medium">Checked</span>
-          <span id="heroChecked" class="font-extrabold text-[#18181b] text-sm">0</span>
+          <span class="text-[#785f56] font-medium">Checked</span>
+          <span id="heroChecked" class="font-extrabold text-[#5d0f18] text-sm">0</span>
         </div>
-        <span class="h-4 w-px bg-slate-200"></span>
+        <span class="h-4 w-px bg-[#dfd0b6]"></span>
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <span class="text-slate-400 font-medium">Verified</span>
-          <span id="heroVerified" class="font-extrabold text-[#18181b] text-sm">0</span>
+          <span class="text-[#785f56] font-medium">Verified</span>
+          <span id="heroVerified" class="font-extrabold text-[#15803d] text-sm">0</span>
         </div>
-        <span class="h-4 w-px bg-slate-200"></span>
+        <span class="h-4 w-px bg-[#dfd0b6]"></span>
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <span class="text-slate-400 font-medium">Alerts</span>
-          <span id="heroAlerts" class="font-extrabold text-[#ab6446] text-sm">0</span>
+          <span class="text-[#785f56] font-medium">Alerts</span>
+          <span id="heroAlerts" class="font-extrabold text-[#9f1d28] text-sm">0</span>
         </div>
-        <span class="hidden sm:inline-block h-4 w-px bg-slate-200"></span>
+        <span class="hidden sm:inline-block h-4 w-px bg-[#dfd0b6]"></span>
         <div class="hidden sm:flex items-center gap-1.5 font-semibold">
-          <span id="pipeStep1" class="px-2.5 py-0.5 rounded-full bg-[#18181b] text-white transition">1. Order</span>
-          <span class="text-slate-300">→</span>
-          <span id="pipeStep2" class="px-2.5 py-0.5 rounded-full text-slate-400 transition">2. Input</span>
-          <span class="text-slate-300">→</span>
-          <span id="pipeStep3" class="px-2.5 py-0.5 rounded-full text-slate-400 transition">3. QA Ticket</span>
+          <span id="pipeStep1" class="px-2.5 py-0.5 rounded-full bg-[#5d0f18] text-white transition">1. Order</span>
+          <span class="text-[#c5b396]">→</span>
+          <span id="pipeStep2" class="px-2.5 py-0.5 rounded-full text-[#8c756b] transition">2. Input</span>
+          <span class="text-[#c5b396]">→</span>
+          <span id="pipeStep3" class="px-2.5 py-0.5 rounded-full text-[#8c756b] transition">3. QA Ticket</span>
         </div>
       </div>
     </div>
   </section>
 
   <!-- 3. FULL-WIDTH BALANCED 2-COLUMN WORKSPACE -->
-  <main id="workspace" class="w-full max-w-[1680px] mx-auto px-3 sm:px-6 lg:px-10 py-4 sm:py-5 space-y-6 sm:space-y-7">
+  <main id="workspace" class="flex-1 w-full max-w-[1680px] mx-auto px-3 sm:px-6 lg:px-10 py-4 sm:py-5 space-y-6 sm:space-y-7">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
 
       <!-- LEFT COLUMN (5/12): Order + Meal Input + Supported Dishes -->
       <div class="lg:col-span-5 space-y-5">
 
         <!-- CARD 1: Customer's Expected Order -->
-        <div class="bg-white rounded-2xl shadow-[0_2px_18px_rgba(15,23,42,0.04)] border border-slate-200/80 p-4 sm:p-6">
-          <div class="flex items-center justify-between gap-2 mb-4">
+        <div class="relative overflow-hidden bg-[#fffdf8] rounded-2xl shadow-[0_4px_18px_rgba(93,15,24,0.05)] border border-[#eadcc4] p-4 sm:p-6">
+          <svg class="pointer-events-none select-none absolute -bottom-2 -right-2 w-20 h-20 text-[#efe3cc] opacity-65" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+            <path d="M84 86c-18-2-32-14-36-32 18 2 32 14 36 32zm-34-2c-12-12-16-28-10-44 12 12 16 28 10 44zm38-28c-14 2-26-4-32-18 14-2 26 4 32 18z"/>
+          </svg>
+
+          <div class="w-8 h-0.5 bg-[#d9a441] rounded-full mb-3"></div>
+          <div class="relative flex items-center justify-between gap-2 mb-4">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-full bg-[#5d0f18] text-[#f2c65d] border-2 border-[#e2b44b]/75 ring-4 ring-[#faf2e3] flex items-center justify-center shrink-0 shadow-xs">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
               </div>
               <div class="min-w-0">
-                <h2 class="text-base font-bold text-[#18181b]">1. Expected Order</h2>
-                <p class="text-[11px] text-slate-400">From POS menu or Mother's Hut URL</p>
+                <h2 class="text-base font-bold text-[#5d0f18]">1. Expected Order</h2>
+                <p class="text-[11px] text-[#785f56]">From POS menu or Mother's Hut URL</p>
               </div>
             </div>
             <input id="orderIdInput" type="text" value="ORD-101"
-              class="w-24 px-2.5 py-1 text-xs font-bold text-center rounded-full bg-slate-50 text-[#18181b] border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300 shrink-0" />
+              class="w-24 px-2.5 py-1 text-xs font-bold text-center rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#e2cfa9] focus:outline-none focus:ring-2 focus:ring-[#d9a441] shrink-0" />
           </div>
 
-          <div class="flex bg-slate-100 p-1 rounded-full mb-4 text-[11px] sm:text-xs font-semibold">
-            <button id="tabOrderManual" type="button" class="flex-1 py-2 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap">
+          <div class="flex bg-[#f5ead6] p-1 rounded-full mb-4 text-[11px] sm:text-xs font-semibold">
+            <button id="tabOrderManual" type="button" class="flex-1 py-2 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap">
               <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
               Select from Menu
             </button>
-            <button id="tabOrderRef" type="button" class="flex-1 py-2 px-2 rounded-full text-slate-600 hover:text-[#18181b] transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap">
+            <button id="tabOrderRef" type="button" class="flex-1 py-2 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap">
               <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
               Reference URL / Photo
             </button>
           </div>
 
           <!-- Tab A: Menu -->
-          <div id="panelOrderManual">
+          <div id="panelOrderManual" class="relative">
             <div class="flex gap-2">
-              <select id="dishSelect" class="flex-1 min-w-0 px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
+              <select id="dishSelect" class="flex-1 min-w-0 px-3 py-2 text-sm rounded-xl border border-[#e5d5ba] bg-white text-[#2a1215] focus:outline-none focus:ring-2 focus:ring-[#d9a441]">
                 <option value="">-- Choose a dish --</option>
               </select>
-              <button id="addDishBtn" type="button" class="px-4 py-2 rounded-full bg-[#18181b] text-white text-sm font-semibold hover:bg-zinc-800 transition shadow-xs active:scale-95 shrink-0">
+              <button id="addDishBtn" type="button" class="px-4 py-2 rounded-full bg-[#5d0f18] text-white text-sm font-semibold hover:bg-[#460910] transition shadow-xs active:scale-95 shrink-0">
                 + Add
               </button>
             </div>
             <div class="mt-3 flex flex-wrap gap-1.5">
               <button type="button" onclick="setSampleOrder(['Butter Chicken', 'Naan'])"
-                class="text-xs px-2.5 py-1 rounded-full bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition">
+                class="text-xs px-2.5 py-1 rounded-full bg-white text-[#5d0f18] hover:bg-[#faf2e3] border border-[#e5d5ba] transition font-medium">
                 + Butter Chicken & Naan
               </button>
               <button type="button" onclick="setSampleOrder(['Biryani', 'Gulab Jamun'])"
-                class="text-xs px-2.5 py-1 rounded-full bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition">
+                class="text-xs px-2.5 py-1 rounded-full bg-white text-[#5d0f18] hover:bg-[#faf2e3] border border-[#e5d5ba] transition font-medium">
                 + Biryani & Gulab Jamun
               </button>
               <button type="button" onclick="setSampleOrder([], true)"
-                class="text-xs px-2.5 py-1 rounded-full bg-white text-slate-500 hover:text-slate-800 border border-slate-200 transition">
+                class="text-xs px-2.5 py-1 rounded-full bg-white text-[#8c756b] hover:text-[#5d0f18] border border-[#e5d5ba] transition">
                 Clear
               </button>
             </div>
           </div>
 
           <!-- Tab B: Mother's Hut Direct URL, CSV of URLs, OR Local Reference Photo -->
-          <div id="panelOrderRef" class="hidden space-y-3">
+          <div id="panelOrderRef" class="hidden relative space-y-3">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">
+              <label class="block text-[11px] font-semibold text-[#785f56] mb-1.5">
                 Paste Mother's Hut Image URL, Menu Page URL, or Upload URLs CSV
               </label>
               <div class="flex flex-col md:flex-row gap-2">
                 <input id="refUrlInput" type="url" placeholder="https://mothershut.com/..."
-                  class="w-full md:flex-1 md:min-w-0 px-3.5 py-2.5 md:py-2 text-xs rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300" />
+                  class="w-full md:flex-1 md:min-w-0 px-3.5 py-2.5 md:py-2 text-xs rounded-full border border-[#e5d5ba] bg-white focus:outline-none focus:ring-2 focus:ring-[#d9a441]" />
                 <div class="flex gap-2 w-full md:w-auto shrink-0">
                   <button id="fetchUrlBtn" type="button"
-                    class="flex-1 md:flex-initial px-4 py-2.5 md:py-2 rounded-full bg-[#18181b] text-white text-xs font-semibold hover:bg-zinc-800 transition shrink-0">
+                    class="flex-1 md:flex-initial px-4 py-2.5 md:py-2 rounded-full bg-[#5d0f18] text-white text-xs font-semibold hover:bg-[#460910] transition shrink-0">
                     Fetch
                   </button>
                   <button id="newUrlBtn" type="button"
-                    class="hidden flex-1 md:flex-initial px-3 py-2.5 md:py-2 rounded-full bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 text-xs font-semibold transition shrink-0">
+                    class="hidden flex-1 md:flex-initial px-3 py-2.5 md:py-2 rounded-full bg-white text-[#5d0f18] border border-[#e5d5ba] hover:bg-[#faf2e3] text-xs font-semibold transition shrink-0">
                     + New URL
                   </button>
                 </div>
@@ -254,245 +269,255 @@
 
             <div id="urlGalleryBox" class="hidden space-y-2">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <p id="urlGalleryTitle" class="text-[11px] font-semibold text-slate-500">Click any dish photo to scan & use as Reference:</p>
+                <p id="urlGalleryTitle" class="text-[11px] font-semibold text-[#785f56]">Click any dish photo to scan & use as Reference:</p>
                 <div class="flex items-center gap-1.5 shrink-0">
-                  <span id="urlGalleryCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"></span>
+                  <span id="urlGalleryCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#eadcc4]"></span>
                   <button id="closeCsvBtn" type="button"
-                    class="hidden text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#faf2ee] text-[#ab6446] border border-[#e4c7ba] hover:bg-[#ab6446] hover:text-white transition">
+                    class="hidden text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#fdf2f2] text-[#9f1d28] border border-[#e7bcbc] hover:bg-[#9f1d28] hover:text-white transition">
                     Close CSV ✕
                   </button>
                 </div>
               </div>
               <input id="gallerySearchInput" type="text" placeholder="Search fetched items (e.g., Dosa, Pasta, Biryani)..."
-                class="hidden w-full px-3 py-1.5 text-xs rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300" />
+                class="hidden w-full px-3 py-1.5 text-xs rounded-full border border-[#e5d5ba] bg-white focus:outline-none focus:ring-2 focus:ring-[#d9a441]" />
               <div id="urlGalleryGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-52 overflow-y-auto p-1"></div>
             </div>
 
-            <div class="flex items-center gap-2 text-[11px] text-slate-400">
-              <span class="flex-1 h-px bg-slate-200"></span>
+            <div class="flex items-center gap-2 text-[11px] text-[#9b847a]">
+              <span class="flex-1 h-px bg-[#eadcc4]"></span>
               <span>or upload CSV / local reference</span>
-              <span class="flex-1 h-px bg-slate-200"></span>
+              <span class="flex-1 h-px bg-[#eadcc4]"></span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <label class="flex items-center justify-center gap-2 border border-dashed border-slate-300 rounded-xl p-3 cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition text-center">
-                <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                <span class="text-xs font-semibold text-slate-700">Upload URLs CSV</span>
+              <label class="flex items-center justify-center gap-2 border border-dashed border-[#d9c4a1] rounded-xl p-3 cursor-pointer hover:border-[#5d0f18] hover:bg-[#faf2e3]/60 transition text-center">
+                <svg class="w-4 h-4 text-[#5d0f18] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                <span class="text-xs font-semibold text-[#5d0f18]">Upload URLs CSV</span>
                 <input id="refCsvInput" type="file" accept=".csv,text/csv" class="hidden" />
               </label>
 
-              <label class="flex items-center justify-center gap-2 border border-dashed border-slate-300 rounded-xl p-3 cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition text-center">
-                <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-                <span class="text-xs font-semibold text-slate-700">Upload Reference Photo</span>
+              <label class="flex items-center justify-center gap-2 border border-dashed border-[#d9c4a1] rounded-xl p-3 cursor-pointer hover:border-[#5d0f18] hover:bg-[#faf2e3]/60 transition text-center">
+                <svg class="w-4 h-4 text-[#5d0f18] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                <span class="text-xs font-semibold text-[#5d0f18]">Upload Reference Photo</span>
                 <input id="refFileInput" type="file" accept="image/*" class="hidden" />
               </label>
             </div>
 
-            <div id="refPreviewBox" class="hidden flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <img id="refPreviewImg" class="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0" alt="Reference" />
-              <p id="refStatusText" class="text-xs font-medium text-slate-600 min-w-0 flex-1 break-words"></p>
+            <div id="refPreviewBox" class="hidden flex items-center gap-3 p-2.5 rounded-xl bg-[#faf2e3]/70 border border-[#eadcc4]">
+              <img id="refPreviewImg" class="w-12 h-12 object-cover rounded-lg border border-[#e5d5ba] shrink-0" alt="Reference" />
+              <p id="refStatusText" class="text-xs font-medium text-[#5d0f18] min-w-0 flex-1 break-words"></p>
             </div>
           </div>
 
-          <div id="orderChips" class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-2"></div>
+          <div id="orderChips" class="relative mt-4 pt-3 border-t border-[#efe4d0] flex flex-wrap gap-2"></div>
         </div>
 
         <!-- CARD 2: Prepared Meal Input -->
-        <div id="mealInputCard" class="bg-white rounded-2xl shadow-[0_2px_18px_rgba(15,23,42,0.04)] border border-slate-200/80 p-4 sm:p-6">
-          <div class="flex items-center justify-between gap-2 sm:gap-3 mb-4">
+        <div id="mealInputCard" class="relative overflow-hidden bg-[#fffdf8] rounded-2xl shadow-[0_4px_18px_rgba(93,15,24,0.05)] border border-[#eadcc4] p-4 sm:p-6">
+          <svg class="pointer-events-none select-none absolute -bottom-2 -right-2 w-20 h-20 text-[#efe3cc] opacity-65" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+            <path d="M84 86c-18-2-32-14-36-32 18 2 32 14 36 32zm-34-2c-12-12-16-28-10-44 12 12 16 28 10 44zm38-28c-14 2-26-4-32-18 14-2 26 4 32 18z"/>
+          </svg>
+
+          <div class="w-8 h-0.5 bg-[#d9a441] rounded-full mb-3"></div>
+          <div class="relative flex items-center justify-between gap-2 sm:gap-3 mb-4">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-full bg-[#5d0f18] text-[#f2c65d] border-2 border-[#e2b44b]/75 ring-4 ring-[#faf2e3] flex items-center justify-center shrink-0 shadow-xs">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>
               </div>
               <div class="min-w-0">
-                <h2 class="text-base font-bold text-[#18181b]">2. Prepared Meal Input</h2>
-                <p class="text-[11px] text-slate-400">Auto-verifies instantly on upload or capture</p>
+                <h2 class="text-base font-bold text-[#5d0f18]">2. Prepared Meal Input</h2>
+                <p class="text-[11px] text-[#785f56]">Upload a plate photo or scan from kitchen camera</p>
               </div>
             </div>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold shrink-0 whitespace-nowrap">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#e5d5ba] text-[10px] font-bold shrink-0 whitespace-nowrap">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#15803d]"></span>
               AUTO-CHECK
             </span>
           </div>
 
-          <!-- AI Detection Mode Switch (Hybrid / 18-Dish / Any Dish) -->
-          <div class="mb-3.5">
-            <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-1.5">
-              <span>AI Detection Mode</span>
-              <span id="modeHintText" class="text-[10px] font-medium text-slate-400">18-Dish + Any Dish (Open-Vocab)</span>
+          <!-- Detection Mode Switch (Hybrid / 18-Dish / Any Dish) -->
+          <div class="relative mb-3.5">
+            <div class="flex items-center justify-between text-[11px] font-semibold text-[#785f56] mb-1.5">
+              <span>Detection Mode</span>
+              <span id="modeHintText" class="text-[10px] font-medium text-[#9b847a]">18-Dish + Any Dish (Open-Vocab)</span>
             </div>
-            <div class="flex bg-slate-100 p-1 rounded-full text-[11px] sm:text-xs font-semibold">
-              <button type="button" data-ai-mode="hybrid" class="ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition whitespace-nowrap">
+            <div class="flex bg-[#f5ead6] p-1 rounded-full text-[11px] sm:text-xs font-semibold">
+              <button type="button" data-ai-mode="hybrid" class="ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition whitespace-nowrap">
                 Auto Hybrid
               </button>
-              <button type="button" data-ai-mode="custom" class="ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-slate-600 hover:text-[#18181b] transition whitespace-nowrap">
+              <button type="button" data-ai-mode="custom" class="ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition whitespace-nowrap">
                 18-Dish
               </button>
-              <button type="button" data-ai-mode="open" class="ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-slate-600 hover:text-[#18181b] transition whitespace-nowrap">
+              <button type="button" data-ai-mode="open" class="ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition whitespace-nowrap">
                 Any Dish
               </button>
             </div>
           </div>
 
-          <div class="flex bg-slate-100 p-1 rounded-full mb-4 text-[11px] sm:text-xs font-semibold">
-            <button id="tabMealUpload" type="button" class="flex-1 py-2 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <div class="relative flex bg-[#f5ead6] p-1 rounded-full mb-4 text-[11px] sm:text-xs font-semibold">
+            <button id="tabMealUpload" type="button" class="flex-1 py-2 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition flex items-center justify-center gap-1.5 whitespace-nowrap">
               <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
               Upload Photo
             </button>
-            <button id="tabMealCam" type="button" class="flex-1 py-2 px-2 rounded-full text-slate-600 hover:text-[#18181b] transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+            <button id="tabMealCam" type="button" class="flex-1 py-2 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition flex items-center justify-center gap-1.5 whitespace-nowrap">
               <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
               Kitchen Camera
             </button>
           </div>
 
           <!-- Upload Zone -->
-          <div id="panelMealUpload">
+          <div id="panelMealUpload" class="relative">
             <label id="dropZone"
-              class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl p-5 cursor-pointer hover:border-slate-400 hover:bg-slate-50/70 transition text-center group">
-              <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+              class="flex flex-col items-center justify-center border-2 border-dashed border-[#dcc9aa] rounded-xl p-5 cursor-pointer hover:border-[#5d0f18] hover:bg-[#faf2e3]/60 transition text-center group">
+              <div class="w-10 h-10 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#eadcc4] flex items-center justify-center mb-2 group-hover:scale-105 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
               </div>
-              <p class="text-sm font-semibold text-[#18181b]">Drop meal photo to auto-verify</p>
-              <p class="text-xs text-slate-400 mt-0.5">PNG, JPG, WEBP — instant AI analysis</p>
+              <p class="text-sm font-semibold text-[#5d0f18]">Drop meal photo to verify</p>
+              <p class="text-xs text-[#8c756b] mt-0.5">PNG, JPG, WEBP — instant verification</p>
               <input id="fileInput" type="file" accept="image/*" class="hidden" />
             </label>
           </div>
 
           <!-- Webcam / Mobile Back-Camera Zone -->
-          <div id="panelMealCam" class="hidden space-y-3">
-            <div class="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+          <div id="panelMealCam" class="hidden relative space-y-3">
+            <div class="relative rounded-xl overflow-hidden bg-[#1b090c] border border-[#e5d5ba]">
               <video id="videoEl" autoplay playsinline muted class="w-full h-64 sm:h-72 object-cover transform-gpu"></video>
               <div id="camScanLine" class="hidden scan-line"></div>
-              <span id="liveBadge" class="hidden absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ab6446] text-white text-xs font-bold shadow">
-                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                LIVE SCANNING
+              <span id="liveBadge" class="hidden absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#5d0f18] border border-[#f2c65d]/60 text-white text-xs font-bold shadow">
+                <span class="w-2 h-2 rounded-full bg-[#f2c65d]"></span>
+                LIVE FEED
               </span>
             </div>
             <div class="flex gap-2">
-              <button id="startCamBtn" type="button" class="flex-1 py-2.5 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition flex items-center justify-center gap-1.5">
+              <button id="startCamBtn" type="button" class="flex-1 py-2.5 rounded-full bg-white border border-[#e5d5ba] text-[#5d0f18] text-xs font-bold hover:bg-[#faf2e3] transition flex items-center justify-center gap-1.5">
                 Start Camera
               </button>
-              <button id="captureBtn" type="button" disabled class="flex-1 py-2.5 rounded-full bg-[#18181b] text-white text-xs font-bold hover:bg-zinc-800 disabled:opacity-40 transition shadow-xs flex items-center justify-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/></svg>
+              <button id="captureBtn" type="button" disabled class="flex-1 py-2.5 rounded-full bg-[#5d0f18] text-white text-xs font-bold hover:bg-[#460910] disabled:opacity-40 transition shadow-xs flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/></svg>
                 Capture & Verify
               </button>
             </div>
             <button id="liveToggleBtn" type="button" disabled
-              class="w-full py-2.5 rounded-full bg-white text-[#18181b] border border-slate-200 hover:bg-slate-50 text-xs font-bold disabled:opacity-40 transition flex items-center justify-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-[#ab6446]"></span>
+              class="w-full py-2.5 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#e5d5ba] hover:bg-[#f5e7ce] text-xs font-bold disabled:opacity-40 transition flex items-center justify-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#5d0f18]"></span>
               Start Live Auto-Verify
             </button>
           </div>
 
           <!-- Selected Image Preview -->
-          <div id="previewContainer" class="hidden mt-4">
+          <div id="previewContainer" class="hidden relative mt-4">
             <div class="flex items-center justify-between mb-1.5">
-              <p class="text-xs font-semibold text-slate-500 uppercase">Captured / Selected Meal</p>
-              <span id="previewStatusBadge" class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Auto-Verified
+              <p class="text-xs font-semibold text-[#785f56] uppercase">Captured / Selected Meal</p>
+              <span id="previewStatusBadge" class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#5d0f18]">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#15803d]"></span>
+                Verified
               </span>
             </div>
-            <div class="relative rounded-xl overflow-hidden border border-slate-200">
+            <div class="relative rounded-xl overflow-hidden border border-[#eadcc4]">
               <img id="previewImg" class="w-full h-36 object-cover" alt="Preview" />
               <div id="previewScanLine" class="hidden scan-line"></div>
             </div>
           </div>
 
           <!-- Threshold Sliders -->
-          <div class="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 space-y-3">
+          <div class="relative mt-4 p-3.5 rounded-xl bg-[#faf2e3]/75 border border-[#eadcc4] space-y-3">
             <div>
               <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Min. Expected Quantity (Fill %)</span>
-                <span id="fillLabel" class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[#18181b] font-bold">85%</span>
+                <span class="text-[#6e5248]">Min. Expected Quantity (Fill %)</span>
+                <span id="fillLabel" class="px-2 py-0.5 rounded-md bg-white border border-[#e5d5ba] text-[#5d0f18] font-bold">85%</span>
               </div>
               <input id="fillSlider" type="range" min="50" max="95" step="5" value="85"
-                class="w-full accent-[#18181b] cursor-pointer" />
+                class="w-full accent-[#5d0f18] cursor-pointer" />
             </div>
 
             <div>
               <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">AI Confidence Threshold</span>
-                <span id="confLabel" class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[#18181b] font-bold">25%</span>
+                <span class="text-[#6e5248]">Confidence Threshold</span>
+                <span id="confLabel" class="px-2 py-0.5 rounded-md bg-white border border-[#e5d5ba] text-[#5d0f18] font-bold">25%</span>
               </div>
               <input id="confSlider" type="range" min="0.10" max="0.90" step="0.05" value="0.25"
-                class="w-full accent-[#18181b] cursor-pointer" />
+                class="w-full accent-[#5d0f18] cursor-pointer" />
             </div>
           </div>
         </div>
 
         <!-- CARD 3: Searchable Dishes -->
-        <details class="bg-white rounded-2xl shadow-[0_2px_18px_rgba(15,23,42,0.04)] border border-slate-200/80 p-4 sm:p-5">
-          <summary class="cursor-pointer font-bold text-[#18181b] text-sm flex items-center justify-between">
-            <span class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+        <details class="bg-[#fffdf8] rounded-2xl shadow-[0_4px_18px_rgba(93,15,24,0.05)] border border-[#eadcc4] p-4 sm:p-5">
+          <summary class="cursor-pointer font-bold text-[#5d0f18] text-sm flex items-center justify-between">
+            <span class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-full bg-[#5d0f18] text-[#f2c65d] border border-[#e2b44b]/70 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+              </span>
               Browse All Supported Indian Dishes
             </span>
-            <span class="text-xs font-semibold text-slate-500">View Menu</span>
+            <span class="text-xs font-semibold text-[#8c756b]">View Menu</span>
           </summary>
           <input id="dishSearch" type="text" placeholder="Search dish (e.g., Paneer, Naan, Halwa)..."
-            class="w-full mt-3 px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300" />
+            class="w-full mt-3 px-3 py-2 text-xs rounded-xl border border-[#e5d5ba] bg-white focus:outline-none focus:ring-2 focus:ring-[#d9a441]" />
           <div id="classesList" class="mt-3 flex flex-wrap gap-1.5 max-h-40 overflow-y-auto"></div>
         </details>
       </div>
 
       <!-- RIGHT COLUMN (7/12): Thermal Kitchen QA Ticket -->
       <div id="resultsPanel" class="lg:col-span-7">
-        <div class="bg-white rounded-2xl shadow-[0_2px_18px_rgba(15,23,42,0.04)] border border-slate-200/80 p-4 sm:p-6 min-h-[360px] lg:min-h-[700px] flex flex-col relative overflow-hidden">
+        <div class="bg-[#fffdf8] rounded-2xl shadow-[0_4px_18px_rgba(93,15,24,0.06)] border border-[#eadcc4] p-4 sm:p-6 min-h-[360px] lg:min-h-[700px] flex flex-col relative overflow-hidden">
+          <svg class="pointer-events-none select-none absolute -bottom-2 -right-2 w-24 h-24 text-[#efe3cc] opacity-60" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+            <path d="M84 86c-18-2-32-14-36-32 18 2 32 14 36 32zm-34-2c-12-12-16-28-10-44 12 12 16 28 10 44zm38-28c-14 2-26-4-32-18 14-2 26 4 32 18z"/>
+          </svg>
 
           <!-- Perforated Ticket Header + Cutouts -->
-          <div class="relative flex flex-wrap items-center justify-between gap-3 mb-5 pb-5 border-b-2 border-dashed border-slate-200">
-            <span class="hidden sm:block absolute -left-9 -bottom-3 w-6 h-6 rounded-full bg-[#fcfaf8] border border-slate-200/80"></span>
-            <span class="hidden sm:block absolute -right-9 -bottom-3 w-6 h-6 rounded-full bg-[#fcfaf8] border border-slate-200/80"></span>
+          <div class="relative flex flex-wrap items-center justify-between gap-3 mb-5 pb-5 border-b-2 border-dashed border-[#e5d5ba]">
+            <span class="hidden sm:block absolute -left-9 -bottom-3 w-6 h-6 rounded-full bg-[#faf3e6] border border-[#eadcc4]"></span>
+            <span class="hidden sm:block absolute -right-9 -bottom-3 w-6 h-6 rounded-full bg-[#faf3e6] border border-[#eadcc4]"></span>
 
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-full bg-[#5d0f18] text-[#f2c65d] border-2 border-[#e2b44b]/75 ring-4 ring-[#faf2e3] flex items-center justify-center shrink-0 shadow-xs">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
               </div>
               <div>
-                <h2 class="text-base font-bold text-[#18181b]">3. Verification & Dispatch Ticket</h2>
-                <p class="text-[11px] text-slate-400">Real-time quantity & dish QA report</p>
+                <h2 class="text-base font-bold text-[#5d0f18]">3. Verification & Dispatch Ticket</h2>
+                <p class="text-[11px] text-[#785f56]">Real-time quantity & dish QA report</p>
               </div>
             </div>
 
             <div id="resultToolbar" class="hidden flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <div class="inline-flex bg-slate-100 p-1 rounded-full text-xs font-semibold">
-                <button id="viewAnnotatedBtn" class="px-3 py-1 rounded-full bg-[#18181b] text-white shadow-xs">AI Result</button>
-                <button id="viewOriginalBtn" class="px-3 py-1 rounded-full text-slate-500 hover:text-[#18181b]">Original</button>
+              <div class="inline-flex bg-[#f5ead6] p-1 rounded-full text-xs font-semibold">
+                <button id="viewAnnotatedBtn" class="px-3 py-1 rounded-full bg-[#5d0f18] text-white shadow-xs">Result</button>
+                <button id="viewOriginalBtn" class="px-3 py-1 rounded-full text-[#6e5248] hover:text-[#5d0f18]">Original</button>
               </div>
               <a id="downloadImgBtn" download="verified_meal.jpg"
-                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition">
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-[#e5d5ba] text-[#5d0f18] hover:bg-[#faf2e3] text-xs font-semibold transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                 Save
               </a>
               <button id="openProofBtn" type="button"
-                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#18181b] text-white hover:bg-zinc-800 text-xs font-semibold transition shadow-xs">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#5d0f18] text-white hover:bg-[#460910] text-xs font-semibold transition shadow-xs">
+                <svg class="w-3.5 h-3.5 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                 Generate Proof Slip
               </button>
             </div>
           </div>
 
           <!-- Empty State -->
-          <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-center text-slate-400 py-10 lg:py-16">
-            <div class="w-20 h-20 rounded-2xl bg-white border border-slate-200/80 shadow-sm p-2 flex items-center justify-center mb-4">
-              <img src="/logo" alt="Mother's Hut" class="w-full h-full object-contain opacity-90 rounded-xl"
+          <div id="emptyState" class="relative flex-1 flex flex-col items-center justify-center text-center text-[#785f56] py-10 lg:py-16">
+            <div class="w-20 h-20 rounded-2xl bg-white border border-[#eadcc4] shadow-xs p-2 flex items-center justify-center mb-4">
+              <img src="/logo" alt="Mother's Hut" class="w-full h-full object-contain opacity-95 rounded-xl"
                 onerror="this.style.display='none'" />
             </div>
-            <p class="font-bold text-[#18181b] text-base">Ready for Automatic Meal Verification</p>
-            <p class="text-xs mt-1.5 max-w-sm leading-relaxed">
+            <p class="font-bold text-[#5d0f18] text-base">Ready for Meal Verification</p>
+            <p class="text-xs mt-1.5 max-w-sm leading-relaxed text-[#785f56]">
               Add expected dishes (or fetch directly from Mother's Hut URL), then drop a meal photo or click <b>Capture & Verify</b> from the kitchen camera.
             </p>
           </div>
 
           <!-- Results Area -->
-          <div id="resultArea" class="hidden space-y-5 animate-fade-up">
+          <div id="resultArea" class="hidden relative space-y-5 animate-fade-up">
 
             <!-- QA Stamp + Alert Banner -->
             <div class="flex flex-col sm:flex-row sm:items-stretch gap-3">
-              <div id="alertBox" class="flex-1 p-4 rounded-2xl border"></div>
+              <div id="alertBox" class="flex-1 p-4 rounded-2xl border border-[#eadcc4]"></div>
               <div id="qaStamp" class="hidden sm:flex flex-col items-center justify-center px-4 py-2 rounded-2xl border-2 border-dashed animate-stamp shrink-0 select-none">
                 <img src="/logo" alt="Seal" class="w-6 h-6 object-contain mb-0.5 rounded" onerror="this.style.display='none'" />
                 <span id="qaStampText" class="text-[10px] font-extrabold tracking-widest uppercase"></span>
@@ -500,24 +525,24 @@
             </div>
 
             <!-- Human Verification Option -->
-            <div id="humanVerifyBox" class="hidden p-4 rounded-2xl bg-slate-50/70 border border-slate-200 space-y-3">
+            <div id="humanVerifyBox" class="hidden p-4 rounded-2xl bg-[#faf2e3]/80 border border-[#eadcc4] space-y-3">
               <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                <div class="w-8 h-8 rounded-full bg-white border border-[#e5d5ba] text-[#5d0f18] flex items-center justify-center shrink-0">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
                 </div>
                 <div>
-                  <h3 class="text-sm font-bold text-[#18181b]">Human Verification Required</h3>
-                  <p id="humanReasonText" class="text-xs text-slate-500 mt-0.5"></p>
+                  <h3 class="text-sm font-bold text-[#5d0f18]">Human Verification Required</h3>
+                  <p id="humanReasonText" class="text-xs text-[#785f56] mt-0.5"></p>
                 </div>
               </div>
               <div class="flex flex-col sm:flex-row flex-wrap gap-2">
                 <button id="humanApproveBtn" type="button"
-                  class="flex-1 py-2.5 px-3 rounded-full bg-[#18181b] hover:bg-zinc-800 text-white text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                  class="flex-1 py-2.5 px-3 rounded-full bg-[#5d0f18] hover:bg-[#460910] text-white text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5">
+                  <svg class="w-4 h-4 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                   Staff Override: Approve Dispatch
                 </button>
                 <button id="humanHoldBtn" type="button"
-                  class="flex-1 py-2.5 px-3 rounded-full bg-white border border-[#d4ab99] text-[#ab6446] hover:bg-[#faf2ee] text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5">
+                  class="flex-1 py-2.5 px-3 rounded-full bg-white border border-[#e7bcbc] text-[#9f1d28] hover:bg-[#fdf2f2] text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
                   Confirm Defect: Hold & Repack
                 </button>
@@ -525,51 +550,51 @@
             </div>
 
             <!-- Quantity Ring + Telemetry Card -->
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center p-4 rounded-2xl bg-[#faf2e3]/75 border border-[#eadcc4]">
               <div class="sm:col-span-5 flex items-center gap-4">
                 <div class="relative w-16 h-16 shrink-0">
                   <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-                    <circle cx="32" cy="32" r="26" fill="none" stroke="#e2e8f0" stroke-width="6" />
-                    <circle id="fillRingCircle" cx="32" cy="32" r="26" fill="none" stroke="#10b981" stroke-width="6"
+                    <circle cx="32" cy="32" r="26" fill="none" stroke="#e8dcc4" stroke-width="6" />
+                    <circle id="fillRingCircle" cx="32" cy="32" r="26" fill="none" stroke="#15803d" stroke-width="6"
                       stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36"
                       class="transition-all duration-500" />
                   </svg>
-                  <span id="fillRingText" class="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-[#18181b]">0%</span>
+                  <span id="fillRingText" class="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-[#5d0f18]">0%</span>
                 </div>
                 <div>
-                  <div class="text-xs font-bold text-[#18181b]">Quantity / Fill</div>
+                  <div class="text-xs font-bold text-[#5d0f18]">Quantity / Fill</div>
                   <span id="quantityBadge" class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold"></span>
-                  <div id="quantitySubtext" class="text-[11px] text-slate-500 mt-1 leading-snug"></div>
+                  <div id="quantitySubtext" class="text-[11px] text-[#785f56] mt-1 leading-snug"></div>
                 </div>
               </div>
 
               <div class="sm:col-span-7 grid grid-cols-3 gap-2.5">
-                <div class="p-3 rounded-xl bg-white border border-slate-200/80 text-center">
-                  <div class="text-[11px] text-slate-400 font-medium">Expected</div>
-                  <div id="statExpected" class="text-lg font-extrabold text-[#18181b] whitespace-nowrap">0</div>
+                <div class="p-3 rounded-xl bg-white border border-[#eadcc4] text-center">
+                  <div class="text-[11px] text-[#8c756b] font-medium">Expected</div>
+                  <div id="statExpected" class="text-lg font-extrabold text-[#5d0f18] whitespace-nowrap">0</div>
                 </div>
-                <div class="p-3 rounded-xl bg-white border border-slate-200/80 text-center">
-                  <div class="text-[11px] text-slate-400 font-medium">Detected</div>
-                  <div id="statDetected" class="text-lg font-extrabold text-[#18181b] whitespace-nowrap">0</div>
+                <div class="p-3 rounded-xl bg-white border border-[#eadcc4] text-center">
+                  <div class="text-[11px] text-[#8c756b] font-medium">Detected</div>
+                  <div id="statDetected" class="text-lg font-extrabold text-[#5d0f18] whitespace-nowrap">0</div>
                 </div>
-                <div class="p-3 rounded-xl bg-white border border-slate-200/80 text-center">
-                  <div class="text-[11px] text-slate-400 font-medium">AI Speed</div>
-                  <div id="statSpeed" class="text-base sm:text-lg font-extrabold text-[#18181b] whitespace-nowrap">0 ms</div>
+                <div class="p-3 rounded-xl bg-white border border-[#eadcc4] text-center">
+                  <div class="text-[11px] text-[#8c756b] font-medium">Scan Time</div>
+                  <div id="statSpeed" class="text-base sm:text-lg font-extrabold text-[#5d0f18] whitespace-nowrap">0 ms</div>
                 </div>
               </div>
             </div>
 
             <!-- Order Comparison Checklist -->
             <div id="checklistBox" class="hidden space-y-2">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Order Comparison Checklist</h3>
+              <h3 class="text-xs font-bold text-[#8c756b] uppercase tracking-wider">Order Comparison Checklist</h3>
               <div id="checklistItems" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
             </div>
 
             <!-- Output Image / Mobile Live Screen (Click to Zoom Lightbox) -->
-            <div class="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 cursor-zoom-in" onclick="openLightbox()">
-              <video id="ticketLiveVideo" autoplay playsinline muted class="hidden lg:hidden w-full h-64 sm:h-72 object-cover bg-slate-900 transform-gpu"></video>
+            <div class="relative group rounded-2xl overflow-hidden border border-[#eadcc4] bg-[#faf2e3]/40 cursor-zoom-in" onclick="openLightbox()">
+              <video id="ticketLiveVideo" autoplay playsinline muted class="hidden lg:hidden w-full h-64 sm:h-72 object-cover bg-[#1b090c] transform-gpu"></video>
               <img id="resultImg" class="w-full max-h-[380px] object-contain mx-auto" alt="Detection Result" />
-              <span id="ticketZoomHint" class="opacity-0 group-hover:opacity-100 transition absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-[#18181b]/80 text-white text-[11px] font-semibold">
+              <span id="ticketZoomHint" class="opacity-0 group-hover:opacity-100 transition absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-[#5d0f18]/85 text-white text-[11px] font-semibold">
                 Click to zoom
               </span>
             </div>
@@ -577,15 +602,21 @@
             <!-- Mobile / Tablet Capture & Verify Button Under Live Screen in Verification Ticket -->
             <div id="ticketCaptureBar" class="hidden lg:hidden">
               <button id="ticketCaptureBtn" type="button"
-                class="w-full py-3 px-4 rounded-full bg-[#18181b] text-white text-xs font-bold hover:bg-zinc-800 transition shadow-xs flex items-center justify-center gap-2 active:scale-95">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/></svg>
+                class="w-full py-3 px-4 rounded-full bg-[#5d0f18] text-white text-xs font-bold hover:bg-[#460910] transition shadow-xs flex items-center justify-center gap-2 active:scale-95">
+                <svg class="w-4 h-4 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/></svg>
                 Capture & Verify
               </button>
             </div>
 
-            <!-- Detected Dish Cards -->
-            <div>
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            <!-- Live Scan Notice (hides intermediate guesses until Capture & Verify) -->
+            <div id="liveDetectNotice" class="hidden p-4 rounded-xl bg-[#faf2e3] border border-[#e5d5ba] text-xs text-[#5d0f18] flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#d9a441] shrink-0"></span>
+              <span><b>Live Camera Active:</b> Detected dishes appear after clicking <b>Capture & Verify</b> so only the final verified dish result is shown.</span>
+            </div>
+
+            <!-- Detected Dish Cards (Shown only after final prediction) -->
+            <div id="detectedDishesBox">
+              <h3 class="text-xs font-bold text-[#8c756b] uppercase tracking-wider mb-3">
                 Detected Dishes (<span id="detectedCount">0</span>)
               </h3>
               <div id="detectionsList" class="space-y-3"></div>
@@ -596,9 +627,9 @@
       </div>
     </div>
 
-    <!-- 4. FULL-WIDTH KITCHEN DISPATCH LOG (With SQLite Vault & Order ID Search Bar) -->
-    <section id="logSection" class="hidden bg-white rounded-2xl shadow-[0_2px_18px_rgba(15,23,42,0.04)] border border-slate-200/80 p-4 sm:p-6 space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#f97316] via-[#fb923c]/50 to-transparent">
+    <!-- 4. FULL-WIDTH KITCHEN DISPATCH LOG -->
+    <section id="logSection" class="hidden bg-[#fffdf8] rounded-2xl shadow-[0_4px_18px_rgba(93,15,24,0.05)] border border-[#eadcc4] p-4 sm:p-6 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#5d0f18] border-b-2 border-[#d9a441]">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-white p-0.5 shadow-xs flex items-center justify-center">
             <img src="/logo" alt="Log" class="w-full h-full object-contain rounded" onerror="this.style.display='none'" />
@@ -609,12 +640,12 @@
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <div class="relative flex-1 sm:flex-initial">
-            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <svg class="w-3.5 h-3.5 text-[#8c756b] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
             <input id="logSearchInput" type="text" placeholder="Search Order ID or dish..."
-              class="pl-8 pr-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-[#18181b] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 w-full sm:w-56" />
+              class="pl-8 pr-3 py-1.5 rounded-full bg-white border border-[#e5d5ba] text-xs text-[#2a1215] placeholder-[#9b847a] focus:outline-none focus:ring-2 focus:ring-[#f2c65d] w-full sm:w-56" />
           </div>
           <button id="exportCsvBtn" type="button"
-            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#18181b] text-white hover:bg-zinc-800 text-xs font-bold transition shadow-xs shrink-0">
+            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#f2c65d] text-[#4b0811] hover:bg-[#e7b747] text-xs font-bold transition shadow-xs shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             Export CSV Report
           </button>
@@ -624,7 +655,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="border-b border-slate-100 text-slate-400 uppercase">
+            <tr class="border-b border-[#efe4d0] text-[#8c756b] uppercase">
               <th class="py-2.5 pr-4">Order ID</th>
               <th class="py-2.5 pr-4">Time</th>
               <th class="py-2.5 pr-4">Expected</th>
@@ -634,80 +665,94 @@
               <th class="py-2.5">Actions</th>
             </tr>
           </thead>
-          <tbody id="logBody" class="divide-y divide-slate-100"></tbody>
+          <tbody id="logBody" class="divide-y divide-[#efe4d0]"></tbody>
         </table>
       </div>
     </section>
   </main>
 
+  <!-- 5. BRAND FOOTER (Matches Workspace Footer) -->
+  <footer class="w-full max-w-[1680px] mx-auto px-3 sm:px-6 lg:px-10 pb-6 pt-2">
+    <div class="flex items-center gap-4">
+      <span class="flex-1 h-px bg-[#dfd0b6]"></span>
+      <div class="w-8 h-8 rounded-lg bg-white border border-[#e2cfa9] p-0.5 shadow-xs flex items-center justify-center shrink-0">
+        <img src="/logo" alt="Mother's Hut" class="w-full h-full object-contain rounded" onerror="this.style.display='none'" />
+      </div>
+      <span class="flex-1 h-px bg-[#dfd0b6]"></span>
+    </div>
+    <p class="text-center text-[10px] sm:text-[11px] font-semibold tracking-[0.2em] uppercase text-[#785f56] mt-2.5">
+      NH-12, Krishnanagar • Est. 2013 &nbsp;|&nbsp; Smart Solutions • Better Restaurant Experience
+    </p>
+  </footer>
+
   <!-- Image Zoom Lightbox Modal -->
-  <div id="imgModal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-6" onclick="closeLightbox()">
-    <div class="relative max-w-4xl w-full bg-white rounded-2xl p-2 shadow-2xl" onclick="event.stopPropagation()">
-      <button onclick="closeLightbox()" class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-slate-700 font-bold shadow-md hover:bg-slate-100">✕</button>
+  <div id="imgModal" class="hidden fixed inset-0 z-50 bg-[#2a070b]/80 backdrop-blur-sm flex items-center justify-center p-6" onclick="closeLightbox()">
+    <div class="relative max-w-4xl w-full bg-[#fffdf8] border border-[#eadcc4] rounded-2xl p-2 shadow-2xl" onclick="event.stopPropagation()">
+      <button onclick="closeLightbox()" class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-[#5d0f18] text-white font-bold shadow-md hover:bg-[#460910]">✕</button>
       <img id="modalImg" class="w-full max-h-[82vh] object-contain rounded-xl" alt="Zoomed Result" />
     </div>
   </div>
 
   <!-- Anti-Fraud Mother's Hut QA Proof Certificate Modal -->
-  <div id="proofModal" class="hidden fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6" onclick="closeProofModal()">
-    <div class="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] overflow-y-auto" onclick="event.stopPropagation()">
-      <div class="px-5 sm:px-6 py-4 bg-[#fcfaf8] border-b border-slate-200 flex items-center justify-between gap-3">
+  <div id="proofModal" class="hidden fixed inset-0 z-50 bg-[#2a070b]/75 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6" onclick="closeProofModal()">
+    <div class="relative max-w-2xl w-full bg-[#fffdf8] rounded-2xl shadow-2xl border border-[#eadcc4] overflow-hidden max-h-[92vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class="px-5 sm:px-6 py-4 bg-[#5d0f18] border-b-2 border-[#d9a441] flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <img src="/logo" alt="Logo" class="w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white p-0.5" onerror="this.style.display='none'" />
+          <img src="/logo" alt="Logo" class="w-9 h-9 object-contain rounded-lg border border-[#f2c65d]/60 bg-white p-0.5" onerror="this.style.display='none'" />
           <div>
-            <div class="text-xs font-extrabold tracking-widest uppercase text-[#ab6446]">Official Dispatch QA Proof Card</div>
-            <div class="text-sm font-bold text-[#18181b]">Mother's Hut Tamper-Proof Meal Certificate</div>
+            <div class="text-xs font-extrabold tracking-widest uppercase text-[#f2c65d]">Official Dispatch QA Proof Card</div>
+            <div class="text-sm font-bold text-white">Mother's Hut Tamper-Proof Meal Certificate</div>
           </div>
         </div>
-        <button onclick="closeProofModal()" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 shrink-0">✕</button>
+        <button onclick="closeProofModal()" class="w-8 h-8 rounded-full bg-white/15 border border-white/25 text-white font-bold hover:bg-white/25 shrink-0">✕</button>
       </div>
 
       <div class="p-5 sm:p-6 space-y-5">
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
-          <div class="sm:col-span-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+          <div class="sm:col-span-6 rounded-xl overflow-hidden border border-[#eadcc4] bg-[#faf2e3]/50">
             <img id="proofPhoto" class="w-full h-56 object-contain mx-auto" alt="Verified Meal Photo" />
           </div>
           <div class="sm:col-span-6 space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <div class="text-[11px] font-semibold text-slate-400 uppercase">Order ID</div>
-                <div id="proofOrderId" class="text-xl font-extrabold text-[#18181b]">ORD-101</div>
+                <div class="text-[11px] font-semibold text-[#8c756b] uppercase">Order ID</div>
+                <div id="proofOrderId" class="text-xl font-extrabold text-[#5d0f18]">ORD-101</div>
               </div>
               <span id="proofStampBadge" class="px-3 py-1 rounded-xl border-2 border-dashed text-[11px] font-extrabold uppercase tracking-wider"></span>
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 text-xs">
-              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
-                <div class="text-[10px] text-slate-400 font-semibold uppercase">Timestamp</div>
-                <div id="proofTimestamp" class="font-bold text-[#18181b] mt-0.5"></div>
+              <div class="p-2.5 rounded-xl bg-[#faf2e3]/80 border border-[#eadcc4]">
+                <div class="text-[10px] text-[#8c756b] font-semibold uppercase">Timestamp</div>
+                <div id="proofTimestamp" class="font-bold text-[#2a1215] mt-0.5"></div>
               </div>
-              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
-                <div class="text-[10px] text-slate-400 font-semibold uppercase">Bowl Fill %</div>
-                <div id="proofFill" class="font-extrabold text-[#18181b] mt-0.5"></div>
+              <div class="p-2.5 rounded-xl bg-[#faf2e3]/80 border border-[#eadcc4]">
+                <div class="text-[10px] text-[#8c756b] font-semibold uppercase">Bowl Fill %</div>
+                <div id="proofFill" class="font-extrabold text-[#5d0f18] mt-0.5"></div>
               </div>
             </div>
 
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs space-y-1">
-              <div><span class="text-slate-400 font-semibold">Expected:</span> <span id="proofExpected" class="font-bold text-[#18181b]"></span></div>
-              <div><span class="text-slate-400 font-semibold">Detected:</span> <span id="proofDetected" class="font-bold text-[#18181b]"></span></div>
-              <div><span class="text-slate-400 font-semibold">Missing:</span> <span id="proofMissing" class="font-bold text-[#ab6446]"></span></div>
+            <div class="p-3 rounded-xl bg-[#faf2e3]/80 border border-[#eadcc4] text-xs space-y-1">
+              <div><span class="text-[#8c756b] font-semibold">Expected:</span> <span id="proofExpected" class="font-bold text-[#2a1215]"></span></div>
+              <div><span class="text-[#8c756b] font-semibold">Detected:</span> <span id="proofDetected" class="font-bold text-[#2a1215]"></span></div>
+              <div><span class="text-[#8c756b] font-semibold">Missing:</span> <span id="proofMissing" class="font-bold text-[#9f1d28]"></span></div>
             </div>
           </div>
         </div>
 
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">SHA-256 Tamper-Proof Verification Hash</div>
-          <div id="proofHashText" class="font-mono text-[11px] text-slate-700 break-all select-all"></div>
+        <div class="p-3 rounded-xl bg-[#faf2e3]/80 border border-[#eadcc4]">
+          <div class="text-[10px] font-bold text-[#8c756b] uppercase tracking-wider mb-1">SHA-256 Tamper-Proof Verification Hash</div>
+          <div id="proofHashText" class="font-mono text-[11px] text-[#5d0f18] break-all select-all"></div>
         </div>
 
         <div class="flex flex-wrap justify-end gap-2 pt-1">
           <button onclick="closeProofModal()" type="button"
-            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition">
+            class="px-4 py-2 rounded-full bg-white border border-[#e5d5ba] text-[#5d0f18] text-xs font-bold hover:bg-[#faf2e3] transition">
             Close
           </button>
           <button id="downloadProofPngBtn" type="button"
-            class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#18181b] text-white text-xs font-bold hover:bg-zinc-800 transition shadow-xs">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#5d0f18] text-white text-xs font-bold hover:bg-[#460910] transition shadow-xs">
+            <svg class="w-4 h-4 text-[#f2c65d]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             Download Proof Card (PNG)
           </button>
         </div>
@@ -716,7 +761,7 @@
   </div>
 
   <!-- Sleek Toast Notification -->
-  <div id="toastBox" class="hidden fixed bottom-6 right-4 sm:right-6 z-50 px-4 py-3 rounded-xl bg-[#18181b] text-white text-xs font-semibold shadow-xl max-w-[90vw]"></div>
+  <div id="toastBox" class="hidden fixed bottom-6 right-4 sm:right-6 z-50 px-4 py-3 rounded-xl bg-[#5d0f18] border border-[#f2c65d]/50 text-white text-xs font-semibold shadow-xl max-w-[90vw]"></div>
 
   <script>
     let selectedFile = null;
@@ -741,7 +786,7 @@
 
     const $ = id => document.getElementById(id);
 
-    // AI Detection Mode Toggle (Auto Hybrid / 18-Dish / Any Dish)
+    // Detection Mode Toggle (Auto Hybrid / 18-Dish / Any Dish)
     const MODE_HINTS = {
       hybrid: "18-Dish + Any Dish (Open-Vocab)",
       custom: "Custom 18 Indian Dishes Only",
@@ -753,8 +798,8 @@
         $("modeHintText").textContent = MODE_HINTS[aiMode] || "";
         document.querySelectorAll(".ai-mode-btn").forEach(b => {
           b.className = b.dataset.aiMode === aiMode
-            ? "ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition whitespace-nowrap"
-            : "ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-slate-600 hover:text-[#18181b] transition whitespace-nowrap";
+            ? "ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition whitespace-nowrap"
+            : "ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition whitespace-nowrap";
         });
         if (selectedFile && !liveActive) {
           recheckCurrentImage();
@@ -794,11 +839,11 @@
     };
 
     const ICONS = {
-      check: `<svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`,
-      x: `<svg class="w-4 h-4 text-[#ab6446] shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`,
+      check: `<svg class="w-4 h-4 text-[#15803d] shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`,
+      x: `<svg class="w-4 h-4 text-[#9f1d28] shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`,
       alert: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>`,
       shieldCheck: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
-      dish: `<svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>`
+      dish: `<svg class="w-4 h-4 text-[#b87b1e] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5h18M4.5 16.5a7.5 7.5 0 0115 0M12 9V7m-2 0h4"/></svg>`
     };
 
     function showToast(msg) {
@@ -842,9 +887,9 @@
     });
 
     function updatePipeline(step) {
-      const active = "px-2.5 py-0.5 rounded-full bg-[#18181b] text-white transition";
-      const done = "px-2.5 py-0.5 rounded-full bg-slate-200/80 text-slate-700 transition";
-      const idle = "px-2.5 py-0.5 rounded-full text-slate-400 transition";
+      const active = "px-2.5 py-0.5 rounded-full bg-[#5d0f18] text-white transition";
+      const done = "px-2.5 py-0.5 rounded-full bg-[#f2c65d]/50 text-[#5d0f18] transition";
+      const idle = "px-2.5 py-0.5 rounded-full text-[#8c756b] transition";
       $("pipeStep1").className = step === 1 ? active : done;
       $("pipeStep2").className = step === 2 ? active : step > 2 ? done : idle;
       $("pipeStep3").className = step === 3 ? active : idle;
@@ -863,28 +908,30 @@
       $("resultArea").classList.add("hidden");
       $("resultToolbar").classList.add("hidden");
       $("humanVerifyBox").classList.add("hidden");
+      $("liveDetectNotice").classList.add("hidden");
+      $("detectedDishesBox").classList.remove("hidden");
       $("emptyState").classList.remove("hidden");
       updatePipeline(expectedOrder.length > 0 ? 2 : 1);
     }
 
-    // 1. Load Dishes & Persisted SQLite Dispatch History on Startup
+    // 1. Load Dishes & Persisted Cloud Vault History on Startup
     fetch("/classes")
       .then(res => res.json())
       .then(data => {
         allDishes = data.classes;
         $("statusBadge").innerHTML = data.demo
-          ? `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Demo Mode`
-          : `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> ${data.total} Indian Dishes Ready`;
+          ? `<span class="w-2 h-2 rounded-full bg-[#d9a441]"></span> Demo Mode`
+          : `<span class="w-2 h-2 rounded-full bg-[#15803d]"></span> ${data.total} Indian Dishes Ready`;
 
         if (data.hybrid === false) {
           aiMode = "custom";
-          $("modeHintText").textContent = "18-Dish Model Active (Low-RAM Cloud Mode)";
+          $("modeHintText").textContent = "18-Dish Model Active (Cloud Mode)";
           document.querySelectorAll(".ai-mode-btn").forEach(b => {
             if (b.dataset.aiMode === "custom") {
-              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition whitespace-nowrap";
+              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition whitespace-nowrap";
             } else {
               b.disabled = true;
-              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-slate-300 cursor-not-allowed transition whitespace-nowrap";
+              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-[#b9a596] cursor-not-allowed transition whitespace-nowrap";
             }
           });
         }
@@ -898,13 +945,51 @@
         renderDishTags(allDishes);
       });
 
+    async function loadOrdersFromVault(searchQuery = "") {
+      try {
+        const url = searchQuery ? `/orders?q=${encodeURIComponent(searchQuery)}` : "/orders";
+        const res = await fetch(url);
+        const data = await res.json();
+        dispatchLog = data.orders || [];
+
+        if (!searchQuery && dispatchLog.length > 0) {
+          const nums = dispatchLog
+            .map(o => parseInt((o.orderId || "").replace(/\D/g, ""), 10))
+            .filter(n => !isNaN(n));
+          if (nums.length > 0) {
+            orderCounter = Math.max(orderCounter, Math.max(...nums) + 1);
+            $("orderIdInput").value = `ORD-${orderCounter}`;
+          }
+        }
+        renderDispatchTable(searchQuery.length > 0);
+      } catch {
+        // Ignore if backend not ready
+      }
+    }
+    loadOrdersFromVault();
+
+    $("logSearchInput").addEventListener("input", e => {
+      loadOrdersFromVault(e.target.value.trim());
+    });
+
+    function renderDishTags(list) {
+      $("classesList").innerHTML = list
+        .map(d => `<span class="px-2.5 py-1 text-xs rounded-full bg-white text-[#5d0f18] border border-[#e5d5ba] hover:border-[#5d0f18] transition">${d}</span>`)
+        .join("");
+    }
+
+    $("dishSearch").addEventListener("input", e => {
+      const q = e.target.value.toLowerCase();
+      renderDishTags(allDishes.filter(d => d.toLowerCase().includes(q)));
+    });
+
     // 2. Expected Order Tabs, Mother's Hut Direct URL Fetcher & Persistent CSV Gallery Picker
     $("tabOrderManual").addEventListener("click", () => switchOrderTab("manual"));
     $("tabOrderRef").addEventListener("click", () => switchOrderTab("ref"));
 
     function switchOrderTab(mode) {
-      const active = "flex-1 py-2 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
-      const idle = "flex-1 py-2 px-2 rounded-full text-slate-600 hover:text-[#18181b] transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
+      const active = "flex-1 py-2 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
+      const idle = "flex-1 py-2 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
       $("panelOrderManual").classList.toggle("hidden", mode !== "manual");
       $("panelOrderRef").classList.toggle("hidden", mode !== "ref");
       $("tabOrderManual").className = mode === "manual" ? active : idle;
@@ -988,7 +1073,7 @@
       $("urlGalleryCount").textContent = `${list.length} item${list.length === 1 ? "" : "s"}`;
 
       if (list.length === 0) {
-        $("urlGalleryGrid").innerHTML = `<p class="col-span-full text-[11px] text-slate-400 text-center py-4">No matching items found.</p>`;
+        $("urlGalleryGrid").innerHTML = `<p class="col-span-full text-[11px] text-[#8c756b] text-center py-4">No matching items found.</p>`;
         return;
       }
 
@@ -996,13 +1081,13 @@
         const btn = document.createElement("button");
         btn.type = "button";
         btn.title = item.name || item.url;
-        btn.className = "group rounded-xl overflow-hidden border border-slate-200 hover:border-[#18181b] transition bg-white flex flex-col text-left";
+        btn.className = "group rounded-xl overflow-hidden border border-[#e5d5ba] hover:border-[#5d0f18] transition bg-white flex flex-col text-left";
         const proxySrc = `/proxy-image?url=${encodeURIComponent(item.url)}`;
         btn.innerHTML = `
-          <div class="w-full aspect-square bg-slate-50 overflow-hidden">
+          <div class="w-full aspect-square bg-[#faf2e3]/50 overflow-hidden">
             <img src="${proxySrc}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition" alt="${item.name || 'Dish'}" />
           </div>
-          ${item.name ? `<span class="px-1.5 py-1 text-[10px] font-semibold text-slate-700 truncate w-full bg-white border-t border-slate-100">${item.name}</span>` : ""}
+          ${item.name ? `<span class="px-1.5 py-1 text-[10px] font-semibold text-[#5d0f18] truncate w-full bg-white border-t border-[#efe4d0]">${item.name}</span>` : ""}
         `;
         btn.addEventListener("click", () => {
           $("refUrlInput").value = item.url;
@@ -1142,13 +1227,13 @@
     // 3. Expected Order Chips
     function renderOrderChips(autoRecheck = false) {
       if (expectedOrder.length === 0) {
-        $("orderChips").innerHTML = `<span class="text-xs text-slate-400">No expected items selected (runs quantity & detection only).</span>`;
+        $("orderChips").innerHTML = `<span class="text-xs text-[#8c756b]">No expected items selected (runs quantity & detection only).</span>`;
       } else {
         $("orderChips").innerHTML = expectedOrder.map((dish, i) => `
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-[#18181b] border border-slate-200">
-            <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#faf2e3] text-[#5d0f18] border border-[#e5d5ba]">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#d9a441]"></span>
             ${dish}
-            <button type="button" onclick="removeDish(${i})" class="text-slate-400 hover:text-[#ab6446] font-bold ml-0.5">✕</button>
+            <button type="button" onclick="removeDish(${i})" class="text-[#8c756b] hover:text-[#9f1d28] font-bold ml-0.5">✕</button>
           </span>
         `).join("");
         updatePipeline(2);
@@ -1181,8 +1266,8 @@
     $("tabMealCam").addEventListener("click", () => switchMealTab("cam"));
 
     function switchMealTab(mode) {
-      const active = "flex-1 py-2 px-2 rounded-full bg-[#18181b] text-white shadow-xs transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
-      const idle = "flex-1 py-2 px-2 rounded-full text-slate-600 hover:text-[#18181b] transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
+      const active = "flex-1 py-2 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
+      const idle = "flex-1 py-2 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap";
       if (mode === "upload") stopCamera();
       $("panelMealUpload").classList.toggle("hidden", mode !== "upload");
       $("panelMealCam").classList.toggle("hidden", mode !== "cam");
@@ -1203,11 +1288,11 @@
     }
 
     $("fileInput").addEventListener("change", e => handleFile(e.target.files[0], true));
-    $("dropZone").addEventListener("dragover", e => { e.preventDefault(); $("dropZone").classList.add("bg-slate-50", "border-slate-400"); });
-    $("dropZone").addEventListener("dragleave", () => $("dropZone").classList.remove("bg-slate-50", "border-slate-400"));
+    $("dropZone").addEventListener("dragover", e => { e.preventDefault(); $("dropZone").classList.add("bg-[#faf2e3]/70", "border-[#5d0f18]"); });
+    $("dropZone").addEventListener("dragleave", () => $("dropZone").classList.remove("bg-[#faf2e3]/70", "border-[#5d0f18]"));
     $("dropZone").addEventListener("drop", e => {
       e.preventDefault();
-      $("dropZone").classList.remove("bg-slate-50", "border-slate-400");
+      $("dropZone").classList.remove("bg-[#faf2e3]/70", "border-[#5d0f18]");
       handleFile(e.dataTransfer.files[0], true);
     });
 
@@ -1296,8 +1381,8 @@
       }
 
       $("liveToggleBtn").innerHTML = liveActive
-        ? `<span class="w-2 h-2 rounded-full bg-[#ab6446] animate-ping"></span> Stop Live Auto-Verify`
-        : `<span class="w-2 h-2 rounded-full bg-[#ab6446]"></span> Start Live Auto-Verify`;
+        ? `<span class="w-2 h-2 rounded-full bg-[#9f1d28]"></span> Stop Live Auto-Verify`
+        : `<span class="w-2 h-2 rounded-full bg-[#5d0f18]"></span> Start Live Auto-Verify`;
       if (liveActive) {
         updatePipeline(3);
         runLiveLoop();
@@ -1322,7 +1407,7 @@
       $("resultImg").classList.remove("hidden", "lg:block");
       $("ticketZoomHint").classList.remove("hidden", "lg:block");
       $("ticketCaptureBar").classList.add("hidden");
-      $("liveToggleBtn").innerHTML = `<span class="w-2 h-2 rounded-full bg-[#ab6446]"></span> Start Live Auto-Verify`;
+      $("liveToggleBtn").innerHTML = `<span class="w-2 h-2 rounded-full bg-[#5d0f18]"></span> Start Live Auto-Verify`;
       $("liveToggleBtn").disabled = true;
       $("captureBtn").disabled = true;
       $("startCamBtn").textContent = "Start Camera";
@@ -1361,8 +1446,8 @@
     async function runPrediction(file, shouldLog, isLive = false, updateActiveLog = false) {
       if (!isLive) {
         $("previewScanLine").classList.remove("hidden");
-        $("previewStatusBadge").innerHTML = `<span class="w-2 h-2 rounded-full bg-[#18181b] animate-ping"></span> Analyzing...`;
-        $("previewStatusBadge").className = "inline-flex items-center gap-1.5 text-[11px] font-bold text-[#18181b]";
+        $("previewStatusBadge").innerHTML = `<span class="w-2 h-2 rounded-full bg-[#d9a441]"></span> Verifying...`;
+        $("previewStatusBadge").className = "inline-flex items-center gap-1.5 text-[11px] font-bold text-[#5d0f18]";
       }
 
       const fd = new FormData();
@@ -1406,14 +1491,14 @@
         updatePipeline(3);
 
         if (!isLive) {
-          $("previewStatusBadge").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Auto-Verified`;
-          $("previewStatusBadge").className = "inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600";
+          $("previewStatusBadge").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#15803d]"></span> Verified`;
+          $("previewStatusBadge").className = "inline-flex items-center gap-1.5 text-[11px] font-bold text-[#5d0f18]";
         }
       } catch {
         if (!isLive) {
-          showToast("Error running verification. Check FastAPI terminal.");
-          $("previewStatusBadge").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#ab6446]"></span> Error`;
-          $("previewStatusBadge").className = "inline-flex items-center gap-1.5 text-[11px] font-bold text-[#ab6446]";
+          showToast("Error running verification. Check server terminal.");
+          $("previewStatusBadge").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#9f1d28]"></span> Error`;
+          $("previewStatusBadge").className = "inline-flex items-center gap-1.5 text-[11px] font-bold text-[#9f1d28]";
         }
       } finally {
         if (!isLive) {
@@ -1444,18 +1529,18 @@
       const isUncertain = data.count === 0 || topConf < 60;
 
       $("statExpected").textContent = v.expected.length;
-      $("statDetected").textContent = data.count;
+      $("statDetected").textContent = isLive ? "—" : data.count;
       $("statSpeed").textContent = `${data.speed_ms} ms`;
       $("detectedCount").textContent = data.count;
 
       const circumference = 163.36;
       const offset = circumference - (q.fill_pct / 100) * circumference;
       $("fillRingCircle").style.strokeDashoffset = offset;
-      $("fillRingCircle").setAttribute("stroke", q.ok ? "#059669" : "#ab6446");
+      $("fillRingCircle").setAttribute("stroke", q.ok ? "#15803d" : "#9f1d28");
       $("fillRingText").textContent = `${Math.round(q.fill_pct)}%`;
 
       $("quantityBadge").textContent = q.ok ? `Full (${q.fill_pct}%)` : `Defect (${q.fill_pct}% < ${q.min_fill}%)`;
-      $("quantityBadge").className = `inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${q.ok ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-[#faf2ee] text-[#ab6446] border border-[#e4c7ba]"}`;
+      $("quantityBadge").className = `inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${q.ok ? "bg-emerald-50 text-[#15803d] border border-emerald-200" : "bg-[#fdf2f2] text-[#9f1d28] border border-[#e7bcbc]"}`;
       $("quantitySubtext").textContent = q.ok
         ? `Meets minimum ${q.min_fill}% fill requirement.`
         : `Below ${q.min_fill}% minimum (half-filled / leftover).`;
@@ -1465,71 +1550,86 @@
         $("qaStampText").textContent = label;
       }
 
+      // During Live Camera aim: hide intermediate wrong dish predictions and show only live aim + fill status
+      if (isLive) {
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#d9a441] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#b87b1e] mt-0.5">${ICONS.shieldCheck}</span><div><div class="font-extrabold text-sm text-[#5d0f18]">LIVE CAMERA AIMING — QUANTITY ${q.fill_pct}%</div><div class="text-xs text-[#785f56] mt-0.5">Detected dishes appear after clicking <b>Capture & Verify</b> (final best.onnx + Open-Vocab check).</div></div>`;
+        setStamp("LIVE AIM", "border-[#d9a441] bg-white text-[#b87b1e]");
+        $("humanVerifyBox").classList.add("hidden");
+        $("checklistBox").classList.add("hidden");
+        $("detectedDishesBox").classList.add("hidden");
+        $("liveDetectNotice").classList.remove("hidden");
+        return;
+      }
+
+      $("liveDetectNotice").classList.add("hidden");
+      $("detectedDishesBox").classList.remove("hidden");
+
       if (v.status === "VERIFIED_HUMAN") {
-        $("alertBox").className = "p-4 rounded-2xl border border-slate-200 border-l-4 border-l-emerald-600 bg-white text-slate-800 flex items-start gap-3";
-        $("alertBox").innerHTML = `<span class="text-emerald-600 mt-0.5">${ICONS.shieldCheck}</span><div><div class="font-extrabold text-sm text-[#18181b]">HUMAN VERIFIED — APPROVED FOR DISPATCH</div><div class="text-xs text-slate-500 mt-0.5">Staff manually inspected the meal and approved this order.</div></div>`;
-        setStamp("APPROVED", "border-emerald-300 bg-white text-emerald-700");
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#15803d] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#15803d] mt-0.5">${ICONS.shieldCheck}</span><div><div class="font-extrabold text-sm text-[#5d0f18]">HUMAN VERIFIED — APPROVED FOR DISPATCH</div><div class="text-xs text-[#785f56] mt-0.5">Staff manually inspected the meal and approved this order.</div></div>`;
+        setStamp("APPROVED", "border-emerald-300 bg-white text-[#15803d]");
         $("humanVerifyBox").classList.add("hidden");
       } else if (v.status === "HELD_HUMAN") {
-        $("alertBox").className = "p-4 rounded-2xl border border-slate-200 border-l-4 border-l-[#ab6446] bg-white text-slate-800 flex items-start gap-3";
-        $("alertBox").innerHTML = `<span class="text-[#ab6446] mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#18181b]">DEFECT CONFIRMED BY STAFF — HELD FOR REPACK</div><div class="text-xs text-slate-500 mt-0.5">Staff confirmed insufficient quantity or missing items.</div></div>`;
-        setStamp("HELD", "border-[#d4ab99] bg-white text-[#ab6446]");
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#9f1d28] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#9f1d28] mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#5d0f18]">DEFECT CONFIRMED BY STAFF — HELD FOR REPACK</div><div class="text-xs text-[#785f56] mt-0.5">Staff confirmed insufficient quantity or missing items.</div></div>`;
+        setStamp("HELD", "border-[#e7bcbc] bg-white text-[#9f1d28]");
         $("humanVerifyBox").classList.add("hidden");
       } else if (v.status === "DEFECT_QUANTITY") {
-        $("alertBox").className = "p-4 rounded-2xl border border-slate-200 border-l-4 border-l-[#ab6446] bg-white text-slate-800 flex items-start gap-3";
-        $("alertBox").innerHTML = `<span class="text-[#ab6446] mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#18181b]">QUANTITY DEFECT ALERT — BOWL UNDERFILLED (${q.fill_pct}%)</div><div class="text-xs text-slate-500 mt-0.5">Fill level is below ${q.min_fill}%. Hold dispatch and refill or inspect tray.</div></div>`;
-        setStamp("QTY ALERT", "border-[#d4ab99] bg-white text-[#ab6446]");
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#9f1d28] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#9f1d28] mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#5d0f18]">QUANTITY DEFECT ALERT — BOWL UNDERFILLED (${q.fill_pct}%)</div><div class="text-xs text-[#785f56] mt-0.5">Fill level is below ${q.min_fill}%. Hold dispatch and refill or inspect tray.</div></div>`;
+        setStamp("QTY ALERT", "border-[#e7bcbc] bg-white text-[#9f1d28]");
         $("humanReasonText").textContent = `Quantity analysis measured ${q.fill_pct}% fill (below ${q.min_fill}%). Visually inspect the bowl and decide:`;
         $("humanVerifyBox").classList.remove("hidden");
       } else if (v.status === "VERIFIED" && !isUncertain) {
-        $("alertBox").className = "p-4 rounded-2xl border border-slate-200 border-l-4 border-l-emerald-600 bg-white text-slate-800 flex items-start gap-3";
-        $("alertBox").innerHTML = `<span class="text-emerald-600 mt-0.5">${ICONS.shieldCheck}</span><div><div class="font-extrabold text-sm text-[#18181b]">QUANTITY & ORDER VERIFIED — READY FOR DISPATCH</div><div class="text-xs text-slate-500 mt-0.5">Fill level (${q.fill_pct}%) & all ${v.matched.length} expected dish(es) verified.</div></div>`;
-        setStamp("QA PASSED", "border-emerald-300 bg-white text-emerald-700");
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#15803d] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#15803d] mt-0.5">${ICONS.shieldCheck}</span><div><div class="font-extrabold text-sm text-[#5d0f18]">QUANTITY & ORDER VERIFIED — READY FOR DISPATCH</div><div class="text-xs text-[#785f56] mt-0.5">Fill level (${q.fill_pct}%) & all ${v.matched.length} expected dish(es) verified.</div></div>`;
+        setStamp("QA PASSED", "border-emerald-300 bg-white text-[#15803d]");
         $("humanVerifyBox").classList.add("hidden");
       } else if (v.status === "INCOMPLETE") {
-        $("alertBox").className = "p-4 rounded-2xl border border-slate-200 border-l-4 border-l-[#ab6446] bg-white text-slate-800 flex items-start gap-3";
-        $("alertBox").innerHTML = `<span class="text-[#ab6446] mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#18181b]">DISPATCH ALERT — INCOMPLETE / MISMATCHED ORDER</div><div class="text-xs text-slate-500 mt-0.5">Missing item(s): ${v.missing.join(", ")}. Hold order and inspect tray.</div></div>`;
-        setStamp("HOLD ORDER", "border-[#d4ab99] bg-white text-[#ab6446]");
-        $("humanReasonText").textContent = "AI flagged a missing or mismatched item. Visually inspect the meal and choose:";
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#9f1d28] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#9f1d28] mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#5d0f18]">DISPATCH ALERT — INCOMPLETE / MISMATCHED ORDER</div><div class="text-xs text-[#785f56] mt-0.5">Missing item(s): ${v.missing.join(", ")}. Hold order and inspect tray.</div></div>`;
+        setStamp("HOLD ORDER", "border-[#e7bcbc] bg-white text-[#9f1d28]");
+        $("humanReasonText").textContent = "A missing or mismatched item was flagged. Visually inspect the meal and choose:";
         $("humanVerifyBox").classList.remove("hidden");
       } else if (isUncertain) {
-        $("alertBox").className = "p-4 rounded-2xl border border-slate-200 border-l-4 border-l-slate-700 bg-white text-slate-800 flex items-start gap-3";
-        $("alertBox").innerHTML = `<span class="text-slate-700 mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#18181b]">LOW AI CERTAINTY — HUMAN CHECK NEEDED</div><div class="text-xs text-slate-500 mt-0.5">AI confidence is below 60% or no dish was clearly detected.</div></div>`;
-        setStamp("REVIEW", "border-slate-300 bg-white text-slate-700");
-        $("humanReasonText").textContent = "AI is not confident enough to verify automatically. Please inspect the meal:";
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#d9a441] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#b87b1e] mt-0.5">${ICONS.alert}</span><div><div class="font-extrabold text-sm text-[#5d0f18]">LOW CERTAINTY — HUMAN CHECK NEEDED</div><div class="text-xs text-[#785f56] mt-0.5">Confidence is below 60% or no dish was clearly detected.</div></div>`;
+        setStamp("REVIEW", "border-[#d9a441] bg-white text-[#b87b1e]");
+        $("humanReasonText").textContent = "Not confident enough to verify automatically. Please inspect the meal:";
         $("humanVerifyBox").classList.remove("hidden");
       } else {
-        $("alertBox").className = "p-4 rounded-2xl border border-slate-200 border-l-4 border-l-[#18181b] bg-white text-slate-800 flex items-start gap-3";
-        $("alertBox").innerHTML = `<span class="text-[#18181b] mt-0.5">${ICONS.shieldCheck}</span><div><div class="font-bold text-sm text-[#18181b]">Quantity OK (${q.fill_pct}%) — Detection Complete</div><div class="text-xs text-slate-500 mt-0.5">Add items in Step 1 to also verify against a customer's expected order.</div></div>`;
-        setStamp("SCANNED", "border-slate-300 bg-white text-slate-600");
+        $("alertBox").className = "p-4 rounded-2xl border border-[#eadcc4] border-l-4 border-l-[#5d0f18] bg-white text-[#2a1215] flex items-start gap-3";
+        $("alertBox").innerHTML = `<span class="text-[#5d0f18] mt-0.5">${ICONS.shieldCheck}</span><div><div class="font-bold text-sm text-[#5d0f18]">Quantity OK (${q.fill_pct}%) — Scan Complete</div><div class="text-xs text-[#785f56] mt-0.5">Add items in Step 1 to also verify against a customer's expected order.</div></div>`;
+        setStamp("SCANNED", "border-[#d9c4a1] bg-white text-[#5d0f18]");
         $("humanVerifyBox").classList.add("hidden");
       }
 
       if (v.expected.length > 0) {
         $("checklistBox").classList.remove("hidden");
         let html = "";
-        v.matched.forEach(item => html += `<div class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-[#18181b] text-xs font-semibold flex items-center gap-2">${ICONS.check}<span>${item} — Packed</span></div>`);
-        v.missing.forEach(item => html += `<div class="px-3 py-2 rounded-xl bg-[#faf2ee] border border-[#e4c7ba] text-[#ab6446] text-xs font-bold flex items-center gap-2">${ICONS.x}<span>${item} — MISSING</span></div>`);
-        v.extra.forEach(item => html += `<div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium flex items-center gap-2"><span class="text-slate-500">${ICONS.alert}</span><span>${item} — Different/Extra item</span></div>`);
+        v.matched.forEach(item => html += `<div class="px-3 py-2 rounded-xl bg-white border border-[#eadcc4] text-[#2a1215] text-xs font-semibold flex items-center gap-2">${ICONS.check}<span>${item} — Packed</span></div>`);
+        v.missing.forEach(item => html += `<div class="px-3 py-2 rounded-xl bg-[#fdf2f2] border border-[#e7bcbc] text-[#9f1d28] text-xs font-bold flex items-center gap-2">${ICONS.x}<span>${item} — MISSING</span></div>`);
+        v.extra.forEach(item => html += `<div class="px-3 py-2 rounded-xl bg-[#faf2e3]/70 border border-[#e5d5ba] text-[#5d0f18] text-xs font-medium flex items-center gap-2"><span class="text-[#b87b1e]">${ICONS.alert}</span><span>${item} — Different/Extra item</span></div>`);
         $("checklistItems").innerHTML = html;
       } else {
         $("checklistBox").classList.add("hidden");
       }
 
       $("detectionsList").innerHTML = data.detections.length === 0
-        ? `<div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs">No dishes detected. Use Human Verification above or lower the confidence slider.</div>`
+        ? `<div class="p-4 rounded-xl bg-[#faf2e3]/70 border border-[#eadcc4] text-[#5d0f18] text-xs">No dishes detected. Use Human Verification above or lower the confidence slider.</div>`
         : data.detections.map(item => `
-            <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 hover:-translate-y-0.5 transition">
+            <div class="p-3.5 rounded-xl bg-white border border-[#eadcc4] hover:-translate-y-0.5 transition shadow-xs">
               <div class="flex justify-between items-center gap-2 mb-1.5">
-                <span class="font-bold text-[#18181b] flex items-center gap-2 text-sm min-w-0">
+                <span class="font-bold text-[#5d0f18] flex items-center gap-2 text-sm min-w-0">
                   ${ICONS.dish}
                   <span class="truncate">${item.name}</span>
-                  ${item.source ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">${item.source}</span>` : ""}
+                  ${item.source ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#e5d5ba] shrink-0">${item.source}</span>` : ""}
                 </span>
-                <span class="text-sm font-bold text-[#18181b] shrink-0">${item.confidence}%</span>
+                <span class="text-sm font-bold text-[#5d0f18] shrink-0">${item.confidence}%</span>
               </div>
-              <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                <div class="bg-[#18181b] h-1.5 rounded-full transition-all duration-500" style="width: ${item.confidence}%"></div>
+              <div class="w-full bg-[#f3e6cf] rounded-full h-1.5 overflow-hidden">
+                <div class="bg-[#5d0f18] h-1.5 rounded-full transition-all duration-500" style="width: ${item.confidence}%"></div>
               </div>
             </div>`).join("");
     }
@@ -1570,13 +1670,13 @@
     function showImageView(mode) {
       $("resultImg").src = mode === "annotated" ? currentAnnotated : currentOriginal;
       $("downloadImgBtn").href = currentAnnotated;
-      $("viewAnnotatedBtn").className = mode === "annotated" ? "px-3 py-1 rounded-full bg-[#18181b] text-white shadow-xs" : "px-3 py-1 rounded-full text-slate-500 hover:text-[#18181b]";
-      $("viewOriginalBtn").className = mode === "original" ? "px-3 py-1 rounded-full bg-[#18181b] text-white shadow-xs" : "px-3 py-1 rounded-full text-slate-500 hover:text-[#18181b]";
+      $("viewAnnotatedBtn").className = mode === "annotated" ? "px-3 py-1 rounded-full bg-[#5d0f18] text-white shadow-xs" : "px-3 py-1 rounded-full text-[#6e5248] hover:text-[#5d0f18]";
+      $("viewOriginalBtn").className = mode === "original" ? "px-3 py-1 rounded-full bg-[#5d0f18] text-white shadow-xs" : "px-3 py-1 rounded-full text-[#6e5248] hover:text-[#5d0f18]";
     }
     $("viewAnnotatedBtn").addEventListener("click", () => showImageView("annotated"));
     $("viewOriginalBtn").addEventListener("click", () => showImageView("original"));
 
-    // 9. SQLite Dispatch Log Persistence, Hero Counters & CSV Export
+    // 9. Cloud Dispatch Log Persistence, Hero Counters & CSV Export
     async function addToDispatchLog(data) {
       const orderId = $("orderIdInput").value.trim() || `ORD-${orderCounter}`;
       orderCounter++;
@@ -1627,38 +1727,38 @@
         $("logSection").classList.remove("hidden");
       }
       if (dispatchLog.length === 0) {
-        $("logBody").innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-400">No matching orders found in SQLite vault.</td></tr>`;
+        $("logBody").innerHTML = `<tr><td colspan="7" class="py-4 text-center text-[#8c756b]">No matching orders found in Cloud Vault.</td></tr>`;
         return;
       }
 
       $("logBody").innerHTML = dispatchLog.map((row, idx) => {
         const badgeMap = {
-          VERIFIED: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ready</span>`,
-          VERIFIED_HUMAN: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Human Verified</span>`,
-          DEFECT_QUANTITY: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#faf2ee] text-[#ab6446] border border-[#e4c7ba] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#ab6446]"></span>Qty Defect</span>`,
-          INCOMPLETE: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#faf2ee] text-[#ab6446] border border-[#e4c7ba] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#ab6446]"></span>Held</span>`,
-          HELD_HUMAN: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#faf2ee] text-[#ab6446] border border-[#e4c7ba] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#ab6446]"></span>Held (Human)</span>`,
-          DETECTION_ONLY: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Scanned</span>`
+          VERIFIED: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#15803d] border border-emerald-200 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#15803d]"></span>Ready</span>`,
+          VERIFIED_HUMAN: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#15803d] border border-emerald-200 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#15803d]"></span>Human Verified</span>`,
+          DEFECT_QUANTITY: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fdf2f2] text-[#9f1d28] border border-[#e7bcbc] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#9f1d28]"></span>Qty Defect</span>`,
+          INCOMPLETE: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fdf2f2] text-[#9f1d28] border border-[#e7bcbc] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#9f1d28]"></span>Held</span>`,
+          HELD_HUMAN: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fdf2f2] text-[#9f1d28] border border-[#e7bcbc] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#9f1d28]"></span>Held (Human)</span>`,
+          DETECTION_ONLY: `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#e5d5ba] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#d9a441]"></span>Scanned</span>`
         };
         const badge = badgeMap[row.status] || badgeMap.DETECTION_ONLY;
         const thumbSrc = row.raw?.original_image || row.raw?.annotated_image || "";
 
         return `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-2.5 pr-4 font-bold text-[#18181b]">
+          <tr class="hover:bg-[#faf2e3]/60 transition">
+            <td class="py-2.5 pr-4 font-bold text-[#5d0f18]">
               <div class="flex items-center gap-2.5">
-                ${thumbSrc ? `<img src="${thumbSrc}" alt="${row.orderId}" class="w-9 h-9 rounded-lg object-cover border border-slate-200 bg-slate-50 shrink-0" />` : ""}
+                ${thumbSrc ? `<img src="${thumbSrc}" alt="${row.orderId}" class="w-9 h-9 rounded-lg object-cover border border-[#e5d5ba] bg-[#faf2e3] shrink-0" />` : ""}
                 <span>${row.orderId}</span>
               </div>
             </td>
-            <td class="py-2.5 pr-4 text-slate-500">${row.time}</td>
+            <td class="py-2.5 pr-4 text-[#785f56]">${row.time}</td>
             <td class="py-2.5 pr-4">${row.expected.join(", ") || "—"}</td>
-            <td class="py-2.5 pr-4 font-bold ${row.fill_pct >= 85 ? "text-emerald-600" : "text-[#ab6446]"}">${row.fill_pct}%</td>
-            <td class="py-2.5 pr-4 font-semibold ${row.missing.length ? "text-[#ab6446]" : "text-slate-400"}">${row.missing.join(", ") || "None"}</td>
+            <td class="py-2.5 pr-4 font-bold ${row.fill_pct >= 85 ? "text-[#15803d]" : "text-[#9f1d28]"}">${row.fill_pct}%</td>
+            <td class="py-2.5 pr-4 font-semibold ${row.missing.length ? "text-[#9f1d28]" : "text-[#9b847a]"}">${row.missing.join(", ") || "None"}</td>
             <td class="py-2.5 pr-4">${badge}</td>
             <td class="py-2.5 space-x-2 whitespace-nowrap">
-              <button onclick="renderResults(dispatchLog[${idx}].raw, ${idx})" class="text-[#18181b] font-bold hover:text-[#ab6446] hover:underline">View</button>
-              <button onclick="openProofModal(dispatchLog[${idx}])" class="px-2.5 py-1 rounded-full bg-slate-100 text-[#18181b] hover:bg-[#18181b] hover:text-white font-semibold transition">Proof Slip</button>
+              <button onclick="renderResults(dispatchLog[${idx}].raw, ${idx})" class="text-[#5d0f18] font-bold hover:text-[#b87b1e] hover:underline">View</button>
+              <button onclick="openProofModal(dispatchLog[${idx}])" class="px-2.5 py-1 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#e5d5ba] hover:bg-[#5d0f18] hover:text-white font-semibold transition">Proof Slip</button>
             </td>
           </tr>`;
       }).join("");
@@ -1682,7 +1782,7 @@
       const isOk = entry.status === "VERIFIED" || entry.status === "VERIFIED_HUMAN";
       $("proofStampBadge").textContent = isOk ? "QA VERIFIED" : entry.status.replace("_", " ");
       $("proofStampBadge").className = `px-3 py-1 rounded-xl border-2 border-dashed text-[11px] font-extrabold uppercase tracking-wider ${
-        isOk ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-[#d4ab99] bg-[#faf2ee] text-[#ab6446]"
+        isOk ? "border-emerald-300 bg-emerald-50 text-[#15803d]" : "border-[#e7bcbc] bg-[#fdf2f2] text-[#9f1d28]"
       }`;
 
       $("proofModal").classList.remove("hidden");
@@ -1726,35 +1826,35 @@
       canvas.height = 580;
       const ctx = canvas.getContext("2d");
 
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = "#fffdf8";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#fcfaf8";
+      ctx.fillStyle = "#5d0f18";
       ctx.fillRect(0, 0, canvas.width, 86);
-      ctx.strokeStyle = "#e2e8f0";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, 86);
-      ctx.lineTo(canvas.width, 86);
-      ctx.stroke();
+      ctx.fillStyle = "#d9a441";
+      ctx.fillRect(0, 84, canvas.width, 4);
 
       const [logoImg, mealImg] = await Promise.all([
         loadImg("/logo"),
         loadImg(e.raw?.annotated_image || e.raw?.original_image || currentAnnotated)
       ]);
 
-      if (logoImg) ctx.drawImage(logoImg, 28, 17, 52, 52);
+      if (logoImg) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(26, 15, 56, 56);
+        ctx.drawImage(logoImg, 28, 17, 52, 52);
+      }
 
-      ctx.fillStyle = "#ab6446";
+      ctx.fillStyle = "#f2c65d";
       ctx.font = "bold 12px sans-serif";
       ctx.fillText("OFFICIAL DISPATCH QA PROOF CERTIFICATE", 96, 35);
-      ctx.fillStyle = "#18181b";
+      ctx.fillStyle = "#ffffff";
       ctx.font = "bold 22px sans-serif";
       ctx.fillText("Mother's Hut Meal Verification", 96, 62);
 
-      ctx.fillStyle = "#f8fafc";
+      ctx.fillStyle = "#faf2e3";
       ctx.fillRect(32, 112, 410, 350);
-      ctx.strokeStyle = "#e2e8f0";
+      ctx.strokeStyle = "#eadcc4";
       ctx.strokeRect(32, 112, 410, 350);
       if (mealImg) {
         const ratio = Math.min(400 / mealImg.width, 340 / mealImg.height);
@@ -1764,19 +1864,19 @@
       }
 
       const rx = 472;
-      ctx.fillStyle = "#64748b";
+      ctx.fillStyle = "#8c756b";
       ctx.font = "bold 12px sans-serif";
       ctx.fillText("ORDER ID", rx, 132);
-      ctx.fillStyle = "#18181b";
+      ctx.fillStyle = "#5d0f18";
       ctx.font = "bold 28px sans-serif";
       ctx.fillText(e.orderId, rx, 164);
 
       const isOk = e.status === "VERIFIED" || e.status === "VERIFIED_HUMAN";
-      ctx.fillStyle = isOk ? "#ecfdf5" : "#faf2ee";
+      ctx.fillStyle = isOk ? "#ecfdf5" : "#fdf2f2";
       ctx.fillRect(720, 122, 168, 38);
-      ctx.strokeStyle = isOk ? "#6ee7b7" : "#d4ab99";
+      ctx.strokeStyle = isOk ? "#6ee7b7" : "#e7bcbc";
       ctx.strokeRect(720, 122, 168, 38);
-      ctx.fillStyle = isOk ? "#047857" : "#ab6446";
+      ctx.fillStyle = isOk ? "#15803d" : "#9f1d28";
       ctx.font = "bold 13px sans-serif";
       ctx.fillText(isOk ? "QA VERIFIED" : e.status, 738, 146);
 
@@ -1790,23 +1890,23 @@
 
       let y = 216;
       rows.forEach(([label, val]) => {
-        ctx.fillStyle = "#64748b";
+        ctx.fillStyle = "#8c756b";
         ctx.font = "bold 13px sans-serif";
         ctx.fillText(label, rx, y);
-        ctx.fillStyle = "#18181b";
+        ctx.fillStyle = "#2a1215";
         ctx.font = "bold 15px sans-serif";
         ctx.fillText(String(val).slice(0, 42), rx, y + 20);
         y += 52;
       });
 
-      ctx.fillStyle = "#f8fafc";
+      ctx.fillStyle = "#faf2e3";
       ctx.fillRect(32, 488, 856, 62);
-      ctx.strokeStyle = "#e2e8f0";
+      ctx.strokeStyle = "#eadcc4";
       ctx.strokeRect(32, 488, 856, 62);
-      ctx.fillStyle = "#64748b";
+      ctx.fillStyle = "#8c756b";
       ctx.font = "bold 11px sans-serif";
       ctx.fillText("SHA-256 TAMPER-PROOF VERIFICATION HASH", 48, 512);
-      ctx.fillStyle = "#18181b";
+      ctx.fillStyle = "#5d0f18";
       ctx.font = "12px monospace";
       ctx.fillText(e.proofHash || "N/A", 48, 534);
 

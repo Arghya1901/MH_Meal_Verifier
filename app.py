@@ -9,7 +9,7 @@ os.environ["YOLO_VERBOSE"] = "False"
 
 import gc
 import io, base64, time, re, json, hashlib, csv, threading
-import urllib.request
+import urllib.request, urllib.error
 from urllib.parse import urljoin
 from datetime import datetime
 from contextlib import closing
@@ -34,12 +34,29 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+_env_path = os.path.join(BASE_DIR, ".env")
+if os.path.exists(_env_path):
+    with open(_env_path, "r", encoding="utf-8") as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _v = _line.split("=", 1)
+                os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+
 ONNX_PATH = os.path.join(BASE_DIR, "best.onnx")
 META_PATH = os.path.join(BASE_DIR, "model_meta.json")
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.sldwvllytyhnnebitvzg:Arghya19012006@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
 )
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite").strip()
+
+_gemini_cache = {}
+_gemini_cache_order = []
+_gemini_lock = threading.Lock()
+_gemini_cooldown_until = 0.0
 
 
 def get_db():
@@ -157,7 +174,10 @@ def compute_proof_hash(
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"⚠️ Initial database connection postponed: {e}")
 
 
 def to_base64(pil_img: Image.Image) -> str:
@@ -338,12 +358,27 @@ def _preprocess_classify(pil_img: Image.Image, size: int) -> np.ndarray:
     return np.expand_dims(np.transpose(arr, (2, 0, 1)), axis=0)
 
 
+def _preprocess_classify_full(pil_img: Image.Image, size: int) -> np.ndarray:
+    resized = pil_img.resize((size, size), Image.BILINEAR)
+    arr = np.asarray(resized, dtype=np.float32) / 255.0
+    return np.expand_dims(np.transpose(arr, (2, 0, 1)), axis=0)
+
+
+def _to_probs(out: np.ndarray) -> np.ndarray:
+    if out.min() < 0 or abs(float(out.sum()) - 1.0) > 0.05:
+        exp = np.exp(out - np.max(out))
+        return exp / exp.sum()
+    return out
+
+
 def run_yolo_on_image(
     image: Image.Image,
     conf_val: float,
     with_plot: bool = True,
     imgsz: int = 640,
-    include_meta: bool = False
+    include_meta: bool = False,
+    expected_list: list | None = None,
+    is_live: bool = False
 ):
     """Run custom 18-dish YOLO ONNX model."""
     if model is None:
@@ -354,11 +389,13 @@ def run_yolo_on_image(
     detections = []
     inp = _preprocess_classify(image, model_imgsz)
     out = model.run(None, {ort_input_name: inp})[0][0]
-    if out.min() < 0 or abs(float(out.sum()) - 1.0) > 0.05:
-        exp = np.exp(out - np.max(out))
-        probs = exp / exp.sum()
-    else:
-        probs = out
+    probs = _to_probs(out)
+
+    if not is_live:
+        inp_full = _preprocess_classify_full(image, model_imgsz)
+        out_full = model.run(None, {ort_input_name: inp_full})[0][0]
+        probs = (0.65 * probs) + (0.35 * _to_probs(out_full))
+        del inp_full, out_full
 
     top_id = int(np.argmax(probs))
     top_score = float(round(float(probs[top_id]) * 100, 1))
@@ -369,11 +406,129 @@ def run_yolo_on_image(
             "source": "18-Dish AI"
         })
 
+    if expected_list and len(expected_list) >= 2:
+        for cid in np.argsort(probs)[::-1][:3]:
+            cid = int(cid)
+            if cid == top_id:
+                continue
+            sc = float(round(float(probs[cid]) * 100, 1))
+            cname = str(model_names.get(cid, cid)).title()
+            if sc >= max(conf_val * 100, 15.0) and any(
+                is_expected_matched(exp, {cname}) for exp in expected_list
+            ):
+                detections.append({
+                    "name": cname,
+                    "confidence": sc,
+                    "source": "18-Dish AI"
+                })
+
     del inp, out
     gc.collect()
 
     annotated_b64 = draw_top_left_label(image, detections) if with_plot else ""
     return detections, annotated_b64, False
+
+
+def run_gemini_vision(
+    image: Image.Image,
+    conf_val: float,
+    expected_list: list | None = None
+) -> list:
+    """Zero-RAM open-vocab dish detection via Gemini Flash REST API (with cache & 429 cooldown)."""
+    global _gemini_cooldown_until
+    if not GEMINI_API_KEY or time.time() < _gemini_cooldown_until:
+        return []
+
+    gemini_img = image.copy()
+    gemini_img.thumbnail((512, 512))
+    buf = io.BytesIO()
+    gemini_img.save(buf, format="JPEG", quality=70)
+    raw_bytes = buf.getvalue()
+    del gemini_img
+
+    cache_key = (
+        hashlib.md5(raw_bytes).hexdigest(),
+        tuple(sorted(e.lower() for e in (expected_list or [])))
+    )
+
+    with _gemini_lock:
+        if cache_key in _gemini_cache:
+            cached = _gemini_cache[cache_key]
+            return [d for d in cached if d["confidence"] >= conf_val * 100]
+
+    img_b64 = base64.b64encode(raw_bytes).decode("utf-8")
+    del raw_bytes
+
+    hint_items = expected_list if expected_list else FOOD_DISH_VOCAB
+    prompt = (
+        "You are an Indian & restaurant meal QA classifier. "
+        "Identify every distinct prepared dish visible on the plate/bowl. "
+        f"Prefer matching exact dish names from this list when applicable: {', '.join(hint_items[:120])}. "
+        'Return ONLY valid JSON in this exact format: '
+        '{"dishes": [{"name": "Dish Name", "confidence": 92}]}. '
+        'Confidence must be an integer 1-99. If no food is visible, return {"dishes": []}.'
+    )
+
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+    )
+    gen_cfg = {"responseMimeType": "application/json"}
+    if "lite" in GEMINI_MODEL.lower():
+        gen_cfg["thinkingConfig"] = {"thinkingLevel": "minimal"}
+
+    payload = {
+        "contents": [{
+            "parts": [
+                {"text": prompt},
+                {"inline_data": {"mime_type": "image/jpeg", "data": img_b64}}
+            ]
+        }],
+        "generationConfig": gen_cfg
+    }
+
+    try:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+
+        text = body["candidates"][0]["content"]["parts"][0]["text"]
+        parsed = json.loads(text)
+        raw_out = []
+        for item in parsed.get("dishes", []):
+            name = str(item.get("name", "")).strip().title()
+            score = float(min(99.0, max(1.0, float(item.get("confidence", 85)))))
+            if name:
+                raw_out.append({
+                    "name": name,
+                    "confidence": round(score, 1),
+                    "source": "Open-Vocab AI"
+                })
+        raw_out.sort(key=lambda x: x["confidence"], reverse=True)
+
+        with _gemini_lock:
+            _gemini_cache[cache_key] = raw_out
+            _gemini_cache_order.append(cache_key)
+            if len(_gemini_cache_order) > 32:
+                old_key = _gemini_cache_order.pop(0)
+                _gemini_cache.pop(old_key, None)
+
+        return [d for d in raw_out if d["confidence"] >= conf_val * 100]
+    except urllib.error.HTTPError as e:
+        if e.code == 429:
+            _gemini_cooldown_until = time.time() + 60.0
+            print("⚠️ Gemini rate limit (429) — cooling down 60s, using best.onnx")
+        else:
+            print(f"⚠️ Gemini HTTP {e.code} fallback — using best.onnx")
+        return []
+    except Exception as e:
+        print(f"⚠️ Gemini fallback ({e}) — using best.onnx")
+        return []
 
 
 def run_hybrid_inference(
@@ -384,10 +539,60 @@ def run_hybrid_inference(
     with_plot: bool = True,
     is_live: bool = False
 ):
-    """best.onnx-only inference pipeline optimized for 512 MB RAM."""
+    """Hybrid ONNX (18-Dish) + rate-limited zero-RAM Gemini Open-Vocab pipeline."""
+    mode = (mode or "hybrid").strip().lower()
     imgsz = 320 if is_live else 640
-    dets, ann, _ = run_yolo_on_image(image, conf_val, with_plot=with_plot, imgsz=imgsz)
-    return dets, ann
+
+    if is_live or mode == "custom" or not GEMINI_API_KEY:
+        dets, ann, _ = run_yolo_on_image(
+            image, conf_val, with_plot=with_plot, imgsz=imgsz,
+            expected_list=expected_list, is_live=is_live
+        )
+        return dets, ann
+
+    if mode == "open":
+        dets = run_gemini_vision(image, conf_val, expected_list=expected_list)
+        if dets:
+            ann = draw_top_left_label(image, dets) if with_plot else ""
+            return dets, ann
+        dets, ann, _ = run_yolo_on_image(
+            image, conf_val, with_plot=with_plot, imgsz=imgsz,
+            expected_list=expected_list, is_live=False
+        )
+        return dets, ann
+
+    custom_dets, _, _ = run_yolo_on_image(
+        image, conf_val, with_plot=False, imgsz=imgsz,
+        expected_list=expected_list, is_live=False
+    )
+    open_exp = [e for e in expected_list if matches_trained_menu(e) is None]
+    top_conf = custom_dets[0]["confidence"] if custom_dets else 0.0
+    det_names = {d["name"] for d in custom_dets}
+    unmatched_18 = bool(expected_list) and not open_exp and not any(
+        is_expected_matched(exp, det_names) for exp in expected_list
+    )
+
+    # Only call Gemini if non-18 item expected, 18-dish missed/low confidence, or uncertain
+    need_open_vocab = (
+        bool(open_exp)
+        or unmatched_18
+        or (not expected_list and top_conf < 82.0)
+        or (top_conf < 70.0)
+    )
+    if need_open_vocab:
+        open_dets = run_gemini_vision(image, conf_val, expected_list=expected_list)
+        if open_dets:
+            if open_exp or unmatched_18 or top_conf < 80.0:
+                dets = open_dets
+            else:
+                trained_low = {n.lower() for n in get_trained_class_names()}
+                extras = [d for d in open_dets if d["name"].lower() not in trained_low]
+                dets = custom_dets + extras
+            ann = draw_top_left_label(image, dets) if with_plot else ""
+            return dets, ann
+
+    ann = draw_top_left_label(image, custom_dets) if with_plot else ""
+    return custom_dets, ann
 
 
 @app.get("/")
@@ -416,14 +621,14 @@ def classes():
             "classes": names,
             "total": int(len(names)),
             "demo": False,
-            "hybrid": False
+            "hybrid": bool(GEMINI_API_KEY)
         }
 
     return {
         "classes": DEMO_CLASSES,
         "total": int(len(DEMO_CLASSES)),
         "demo": True,
-        "hybrid": False
+        "hybrid": bool(GEMINI_API_KEY)
     }
 
 
