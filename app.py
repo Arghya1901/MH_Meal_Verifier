@@ -12,6 +12,7 @@ import io, base64, time, re, json, hashlib, csv, threading
 import urllib.request, urllib.error
 from urllib.parse import urljoin
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from contextlib import closing
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body
@@ -57,6 +58,13 @@ METRICS_DATABASE_URL = os.environ.get(
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite").strip()
 
+IST = ZoneInfo("Asia/Kolkata")
+
+
+def get_current_ist_datetime() -> datetime:
+    """Return current timestamp strictly in Indian Standard Time (IST)."""
+    return datetime.now(IST)
+
 _gemini_cache = {}
 _gemini_cache_order = []
 _gemini_lock = threading.Lock()
@@ -78,21 +86,24 @@ def get_metrics_db():
 def update_food_quality_metric(dt: datetime = None, current_score: float = None):
     """
     Update food_quality_score in master_metrics on the metrics database in 5-minute intervals.
-    The window_start aligns on minutes ending in 0 or 5 (e.g. 12:00, 12:05, 12:10).
+    The window_start aligns on minutes ending in 0 or 5 (e.g. 18:00, 18:05, 18:10) in IST.
     If the window exists, updates food_quality_score with the exact average score.
     If not, creates the record with the interval.
     """
     if not METRICS_DATABASE_URL:
         return
     try:
-        # Use naive local datetime matching the other pipeline producers inserting into master_metrics
-        now = dt if dt is not None else datetime.now()
-        if hasattr(now, "tzinfo") and now.tzinfo is not None:
-            now = now.replace(tzinfo=None)
+        if dt is not None:
+            now = dt.astimezone(IST) if dt.tzinfo else dt.replace(tzinfo=IST)
+        else:
+            now = get_current_ist_datetime()
 
-        # Floor minute to multiple of 5 (e.g. 17:00, 17:05, 17:10, 17:15, 17:20)
-        floored_minute = (now.minute // 5) * 5
-        window_start = now.replace(minute=floored_minute, second=0, microsecond=0)
+        # Format naive datetime for consistent timestamp comparison matching the IST clock
+        now_naive = now.replace(tzinfo=None)
+
+        # Floor minute to multiple of 5 (e.g. 18:00, 18:05, 18:10, 18:15, 18:20)
+        floored_minute = (now_naive.minute // 5) * 5
+        window_start = now_naive.replace(minute=floored_minute, second=0, microsecond=0)
 
         # Compute average score for the current 5-minute interval across all orders tested
         scores = []
