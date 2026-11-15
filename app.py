@@ -117,7 +117,7 @@ def update_food_quality_metric(dt: datetime = None, current_score: float = None)
                     window_end_str = (window_start + timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
                     cur_disp.execute(
                         """
-                        SELECT fill_pct
+                        SELECT expected_json, detected_json, payload_json
                         FROM dispatch_orders
                         WHERE timestamp >= %s AND timestamp < %s
                         """,
@@ -125,8 +125,17 @@ def update_food_quality_metric(dt: datetime = None, current_score: float = None)
                     )
                     rows = cur_disp.fetchall()
                     for r in rows:
-                        if r[0] is not None:
-                            scores.append(float(r[0]))
+                        try:
+                            exp = json.loads(r[0]) if r[0] else []
+                            pay = json.loads(r[2]) if r[2] else {}
+                            dets = pay.get("detections", [])
+                            if not dets and r[1]:
+                                dets = [{"name": name, "confidence": 85.0} for name in json.loads(r[1])]
+                            c_score = calculate_match_confidence(exp, dets)
+                            if c_score > 0:
+                                scores.append(c_score)
+                        except Exception:
+                            continue
         except Exception as e:
             print(f"⚠️ Notice: could not fetch interval orders: {e}")
 
@@ -409,6 +418,38 @@ def is_expected_matched(expected_item: str, detected_names: set) -> bool:
         if exp_clean == det_clean or exp_clean in det_clean or det_clean in exp_clean:
             return True
     return False
+
+
+def calculate_match_confidence(expected_items: list, detections: list) -> float:
+    """
+    Calculate confidence percentage that the expected items match the uploaded items.
+    If expected items are provided:
+      Computes the match confidence for each expected item based on the detected item confidence.
+    If no expected items provided:
+      Uses the average confidence of detected items (or top confidence).
+    Returns confidence score as a percentage (0.0 to 100.0).
+    """
+    if not detections:
+        return 0.0
+
+    if expected_items:
+        confidences = []
+        for exp in expected_items:
+            best_conf = 0.0
+            for d in detections:
+                dname = d.get("name", "")
+                conf = float(d.get("confidence", 0.0))
+                if is_expected_matched(exp, {dname}):
+                    if conf > best_conf:
+                        best_conf = conf
+            if best_conf > 0.0:
+                confidences.append(best_conf)
+        if confidences:
+            return float(round(sum(confidences) / len(confidences), 2))
+        return 0.0
+    else:
+        confs = [float(d.get("confidence", 0.0)) for d in detections if d.get("confidence") is not None]
+        return float(round(sum(confs) / len(confs), 2)) if confs else 0.0
 
 
 def _strip_meta(detections: list) -> list:
@@ -820,11 +861,15 @@ def save_order(payload: dict = Body(...)):
             )
             db_id = cur.fetchone()[0]
 
+    # Calculate match confidence score of expected food vs uploaded food
+    raw_dets = raw.get("detections", []) if isinstance(raw, dict) else []
+    quality_score = calculate_match_confidence(expected, raw_dets)
+
     # Asynchronously update food_quality_score in 5-minute interval metrics
     try:
         threading.Thread(
             target=update_food_quality_metric,
-            kwargs={"dt": now_ist, "current_score": fill_pct},
+            kwargs={"dt": now_ist, "current_score": quality_score},
             daemon=True
         ).start()
     except Exception as e:
@@ -1066,7 +1111,10 @@ async def predict(
         img_bytes = await file.read()
         image = ImageOps.exif_transpose(Image.open(io.BytesIO(img_bytes))).convert("RGB")
         del img_bytes
-        image.thumbnail((800, 800))
+        if live:
+            image.thumbnail((256, 256))
+        else:
+            image.thumbnail((800, 800))
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid image file.")
 
@@ -1105,15 +1153,19 @@ async def predict(
     else:
         status = "INCOMPLETE"
 
-    # Update 5-minute food_quality_score in metrics DB for every tested food
-    try:
-        threading.Thread(
-            target=update_food_quality_metric,
-            kwargs={"dt": get_current_ist_datetime(), "current_score": fill_pct},
-            daemon=True
-        ).start()
-    except Exception as e:
-        print(f"⚠️ Could not start metric update thread on predict: {e}")
+    # Calculate match confidence score of expected food vs uploaded food
+    quality_score = calculate_match_confidence(expected_list, detections)
+
+    # Update 5-minute food_quality_score in metrics DB for every tested food (skip live frames)
+    if not live:
+        try:
+            threading.Thread(
+                target=update_food_quality_metric,
+                kwargs={"dt": get_current_ist_datetime(), "current_score": quality_score},
+                daemon=True
+            ).start()
+        except Exception as e:
+            print(f"⚠️ Could not start metric update thread on predict: {e}")
 
     return {
         "original_image": original_b64,

@@ -1389,14 +1389,29 @@
       }
     });
 
+    let liveInFlight = false;
+
     function runLiveLoop() {
       if (!liveActive || !cameraStream) return;
-      const delay = window.innerWidth < 1024 ? 300 : 120;
+      if (liveInFlight) return; // Prevent request pile-up causing lag on Render
+
       const ok = grabFrameBlob(async blob => {
-        await runPrediction(new File([blob], "live_frame.jpg", { type: "image/jpeg" }), false, true);
-        if (liveActive) setTimeout(runLiveLoop, delay);
+        liveInFlight = true;
+        try {
+          await runPrediction(new File([blob], "live_frame.jpg", { type: "image/jpeg" }), false, true);
+        } catch { /* ignore frame errors */ }
+        finally {
+          liveInFlight = false;
+        }
+        if (liveActive) {
+          // 250ms interval prevents overloading CPU on server and client
+          setTimeout(runLiveLoop, 250);
+        }
       }, true);
-      if (!ok && liveActive) setTimeout(runLiveLoop, 150);
+
+      if (!ok && liveActive) {
+        setTimeout(runLiveLoop, 200);
+      }
     }
 
     function stopCamera() {
