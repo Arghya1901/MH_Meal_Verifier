@@ -11,7 +11,7 @@ import gc
 import io, base64, time, re, json, hashlib, csv, threading
 import urllib.request, urllib.error
 from urllib.parse import urljoin
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from contextlib import closing
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body
@@ -50,6 +50,10 @@ DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.sldwvllytyhnnebitvzg:Arghya19012006@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
 )
+METRICS_DATABASE_URL = os.environ.get(
+    "METRICS_DATABASE_URL",
+    "postgresql://postgres.vmdxwszdawcdluaignpl:The_Neotia_Uni@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres"
+)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite").strip()
 
@@ -63,6 +67,91 @@ def get_db():
     if not DATABASE_URL:
         raise RuntimeError("DATABASE_URL environment variable is not set.")
     return psycopg2.connect(DATABASE_URL, sslmode="require", connect_timeout=10)
+
+
+def get_metrics_db():
+    if not METRICS_DATABASE_URL:
+        raise RuntimeError("METRICS_DATABASE_URL is not set.")
+    return psycopg2.connect(METRICS_DATABASE_URL, sslmode="require", connect_timeout=10)
+
+
+def update_food_quality_metric(dt: datetime = None, current_score: float = None):
+    """
+    Update food_quality_score in master_metrics on the metrics database in 5-minute intervals.
+    The window_start aligns on minutes ending in 0 or 5 (e.g. 12:00, 12:05, 12:10).
+    If the window exists, updates food_quality_score with the exact average score.
+    If not, creates the record with the interval.
+    """
+    if not METRICS_DATABASE_URL:
+        return
+    try:
+        # Use naive local datetime matching the other pipeline producers inserting into master_metrics
+        now = dt if dt is not None else datetime.now()
+        if hasattr(now, "tzinfo") and now.tzinfo is not None:
+            now = now.replace(tzinfo=None)
+
+        # Floor minute to multiple of 5 (e.g. 17:00, 17:05, 17:10, 17:15, 17:20)
+        floored_minute = (now.minute // 5) * 5
+        window_start = now.replace(minute=floored_minute, second=0, microsecond=0)
+
+        # Compute average score for the current 5-minute interval across all orders tested
+        scores = []
+        if current_score is not None:
+            scores.append(float(current_score))
+
+        try:
+            with closing(get_db()) as conn_disp:
+                with conn_disp.cursor() as cur_disp:
+                    window_start_str = window_start.strftime("%Y-%m-%d %H:%M:%S")
+                    window_end_str = (window_start + timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
+                    cur_disp.execute(
+                        """
+                        SELECT fill_pct
+                        FROM dispatch_orders
+                        WHERE timestamp >= %s AND timestamp < %s
+                        """,
+                        (window_start_str, window_end_str)
+                    )
+                    rows = cur_disp.fetchall()
+                    for r in rows:
+                        if r[0] is not None:
+                            scores.append(float(r[0]))
+        except Exception as e:
+            print(f"⚠️ Notice: could not fetch interval orders: {e}")
+
+        avg_score = float(round(sum(scores) / len(scores), 2)) if scores else 0.0
+
+        with closing(get_metrics_db()) as conn, conn:
+            with conn.cursor() as cur:
+                # Check if window_start already exists in master_metrics
+                cur.execute(
+                    "SELECT food_quality_score FROM master_metrics WHERE window_start = %s",
+                    (window_start,)
+                )
+                existing = cur.fetchone()
+
+                if existing:
+                    # Update exact value replacing 0 or prior value
+                    cur.execute(
+                        """
+                        UPDATE master_metrics
+                        SET food_quality_score = %s
+                        WHERE window_start = %s
+                        """,
+                        (avg_score, window_start)
+                    )
+                else:
+                    # Insert new window_start with proper 5-min interval
+                    cur.execute(
+                        """
+                        INSERT INTO master_metrics
+                        (window_start, vehicle_count, total_orders, hygiene_score, food_quality_score, positive_sentiment, negative_sentiment, customer_count)
+                        VALUES (%s, 0, 0, 0, %s, 0, 0, 0)
+                        """,
+                        (window_start, avg_score)
+                    )
+    except Exception as e:
+        print(f"⚠️ Failed to update food_quality_score in master_metrics: {e}")
 
 
 model = None
@@ -719,6 +808,16 @@ def save_order(payload: dict = Body(...)):
             )
             db_id = cur.fetchone()[0]
 
+    # Asynchronously update food_quality_score in 5-minute interval metrics
+    try:
+        threading.Thread(
+            target=update_food_quality_metric,
+            kwargs={"dt": datetime.now(), "current_score": fill_pct},
+            daemon=True
+        ).start()
+    except Exception as e:
+        print(f"⚠️ Could not start metric update thread: {e}")
+
     return {"dbId": db_id, "timestamp": timestamp, "proofHash": proof_hash}
 
 
@@ -993,6 +1092,16 @@ async def predict(
         status = "VERIFIED"
     else:
         status = "INCOMPLETE"
+
+    # Update 5-minute food_quality_score in metrics DB for every tested food
+    try:
+        threading.Thread(
+            target=update_food_quality_metric,
+            kwargs={"dt": datetime.now(), "current_score": fill_pct},
+            daemon=True
+        ).start()
+    except Exception as e:
+        print(f"⚠️ Could not start metric update thread on predict: {e}")
 
     return {
         "original_image": original_b64,
