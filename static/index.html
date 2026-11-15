@@ -1676,17 +1676,44 @@
     $("viewAnnotatedBtn").addEventListener("click", () => showImageView("annotated"));
     $("viewOriginalBtn").addEventListener("click", () => showImageView("original"));
 
+    function getIstTimestampStrings() {
+      const now = new Date();
+      // Format to IST explicitly (Asia/Kolkata)
+      const istTimeStr = now.toLocaleTimeString("en-GB", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).formatToParts(now);
+      const m = {};
+      parts.forEach(p => { m[p.type] = p.value; });
+      const istTimestampStr = `${m.year}-${m.month}-${m.day} ${m.hour}:${m.minute}:${m.second}`;
+      return { time: istTimeStr, timestamp: istTimestampStr };
+    }
+
     // 9. Cloud Dispatch Log Persistence, Hero Counters & CSV Export
     async function addToDispatchLog(data) {
       const orderId = $("orderIdInput").value.trim() || `ORD-${orderCounter}`;
       orderCounter++;
       $("orderIdInput").value = `ORD-${orderCounter}`;
 
+      const { time: istTime, timestamp: istTimestamp } = getIstTimestampStrings();
+
       const entry = {
         dbId: null,
         orderId,
-        timestamp: new Date().toISOString().slice(0, 19).replace("T", " "),
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        timestamp: istTimestamp,
+        time: istTime,
         expected: data.verification.expected,
         detected: data.detections.map(d => d.name),
         fill_pct: data.quantity.fill_pct,
@@ -1706,7 +1733,8 @@
         if (res.ok) {
           const saved = await res.json();
           entry.dbId = saved.dbId;
-          entry.timestamp = saved.timestamp;
+          entry.timestamp = saved.timestamp || entry.timestamp;
+          entry.time = saved.time || entry.time;
           entry.proofHash = saved.proofHash;
         }
       } catch { /* fallback to in-memory */ }
@@ -1792,10 +1820,11 @@
       if (activeLogIndex !== null && dispatchLog[activeLogIndex]) {
         openProofModal(dispatchLog[activeLogIndex]);
       } else if (lastResultData) {
+        const { time: istTime, timestamp: istTimestamp } = getIstTimestampStrings();
         openProofModal({
           orderId: $("orderIdInput").value.trim() || "ORD-LIVE",
-          timestamp: new Date().toISOString().slice(0, 19).replace("T", " "),
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          timestamp: istTimestamp,
+          time: istTime,
           expected: lastResultData.verification.expected,
           detected: lastResultData.detections.map(d => d.name),
           fill_pct: lastResultData.quantity.fill_pct,
