@@ -778,9 +778,10 @@ def list_orders(q: str = ""):
 @app.post("/orders")
 def save_order(payload: dict = Body(...)):
     """Persist a verified order permanently in PostgreSQL."""
+    now_ist = get_current_ist_datetime()
     order_id = str(payload.get("orderId", "ORD-101"))
-    display_time = str(payload.get("time", datetime.now().strftime("%I:%M %p")))
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    display_time = str(payload.get("time", "")).strip() or now_ist.strftime("%H:%M")
+    timestamp = now_ist.strftime("%Y-%m-%d %H:%M:%S")
 
     expected = payload.get("expected", [])
     detected = payload.get("detected", [])
@@ -823,13 +824,13 @@ def save_order(payload: dict = Body(...)):
     try:
         threading.Thread(
             target=update_food_quality_metric,
-            kwargs={"dt": datetime.now(), "current_score": fill_pct},
+            kwargs={"dt": now_ist, "current_score": fill_pct},
             daemon=True
         ).start()
     except Exception as e:
         print(f"⚠️ Could not start metric update thread: {e}")
 
-    return {"dbId": db_id, "timestamp": timestamp, "proofHash": proof_hash}
+    return {"dbId": db_id, "timestamp": timestamp, "time": display_time, "proofHash": proof_hash}
 
 
 @app.patch("/orders/{db_id}")
@@ -1108,7 +1109,7 @@ async def predict(
     try:
         threading.Thread(
             target=update_food_quality_metric,
-            kwargs={"dt": datetime.now(), "current_score": fill_pct},
+            kwargs={"dt": get_current_ist_datetime(), "current_score": fill_pct},
             daemon=True
         ).start()
     except Exception as e:
