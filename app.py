@@ -512,6 +512,32 @@ def _to_probs(out: np.ndarray) -> np.ndarray:
     return out
 
 
+def is_valid_food_prediction(probs: np.ndarray, top_id: int, conf_val: float) -> tuple[bool, float]:
+    """
+    Guard against non-food inputs (hands, empty plates, background objects).
+    A true dish prediction in an 18-class softmax model exhibits a distinct peak.
+    Non-food inputs produce flat distributions with high entropy and small margins.
+    """
+    top_score = float(round(float(probs[top_id]) * 100, 1))
+    
+    # Absolute minimum confidence required (must meet user threshold and at least 35%)
+    min_required = max(conf_val * 100, 35.0)
+    if top_score < min_required:
+        return False, top_score
+
+    # Check margin over runner-up class
+    sorted_probs = np.sort(probs)
+    runner_up = float(sorted_probs[-2]) if len(sorted_probs) > 1 else 0.0
+    margin = float(probs[top_id]) - runner_up
+
+    # If top score is between 35% and 55%, require a clear margin (at least 8%)
+    # to avoid false positives on background objects/hands
+    if top_score < 55.0 and margin < 0.08:
+        return False, top_score
+
+    return True, top_score
+
+
 def run_yolo_on_image(
     image: Image.Image,
     conf_val: float,
@@ -521,7 +547,7 @@ def run_yolo_on_image(
     expected_list: list | None = None,
     is_live: bool = False
 ):
-    """Run custom 18-dish YOLO ONNX model."""
+    """Run custom 18-dish YOLO ONNX model with non-food suppression."""
     if model is None:
         dets = [{"name": "Butter Chicken", "confidence": 91.7, "source": "18-Dish AI"}]
         ann = draw_top_left_label(image, dets) if with_plot else ""
@@ -539,22 +565,24 @@ def run_yolo_on_image(
         del inp_full, out_full
 
     top_id = int(np.argmax(probs))
-    top_score = float(round(float(probs[top_id]) * 100, 1))
-    if top_score >= conf_val * 100:
+    is_valid, top_score = is_valid_food_prediction(probs, top_id, conf_val)
+
+    if is_valid:
         detections.append({
             "name": str(model_names.get(top_id, top_id)).title(),
             "confidence": top_score,
             "source": "18-Dish AI"
         })
 
-    if expected_list and len(expected_list) >= 2:
+    # Only look for secondary expected items if the primary prediction is valid food
+    if is_valid and expected_list and len(expected_list) >= 2:
         for cid in np.argsort(probs)[::-1][:3]:
             cid = int(cid)
             if cid == top_id:
                 continue
             sc = float(round(float(probs[cid]) * 100, 1))
             cname = str(model_names.get(cid, cid)).title()
-            if sc >= max(conf_val * 100, 15.0) and any(
+            if sc >= max(conf_val * 100, 25.0) and any(
                 is_expected_matched(exp, {cname}) for exp in expected_list
             ):
                 detections.append({
@@ -914,6 +942,27 @@ def update_order_status(db_id: int, payload: dict = Body(...)):
             )
 
     return {"dbId": db_id, "status": new_status, "proofHash": new_hash}
+
+
+@app.delete("/orders/{identifier}")
+def delete_order(identifier: str):
+    """Delete an order from PostgreSQL by either integer id or string order_id."""
+    with closing(get_db()) as conn, conn:
+        with conn.cursor() as cur:
+            if identifier.isdigit():
+                cur.execute("DELETE FROM dispatch_orders WHERE id = %s OR order_id = %s", (int(identifier), identifier))
+            else:
+                cur.execute("DELETE FROM dispatch_orders WHERE order_id = %s", (identifier,))
+    return {"deleted": True, "identifier": identifier}
+
+
+@app.delete("/orders")
+def clear_all_orders():
+    """Clear all records from dispatch_orders table."""
+    with closing(get_db()) as conn, conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM dispatch_orders")
+    return {"cleared": True}
 
 
 @app.post("/fetch-csv")

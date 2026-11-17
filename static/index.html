@@ -435,9 +435,9 @@
             <div>
               <div class="flex justify-between text-xs font-semibold mb-1">
                 <span class="text-[#6e5248]">Confidence Threshold</span>
-                <span id="confLabel" class="px-2 py-0.5 rounded-md bg-white border border-[#e5d5ba] text-[#5d0f18] font-bold">25%</span>
+                <span id="confLabel" class="px-2 py-0.5 rounded-md bg-white border border-[#e5d5ba] text-[#5d0f18] font-bold">40%</span>
               </div>
-              <input id="confSlider" type="range" min="0.10" max="0.90" step="0.05" value="0.25"
+              <input id="confSlider" type="range" min="0.10" max="0.90" step="0.05" value="0.40"
                 class="w-full accent-[#5d0f18] cursor-pointer" />
             </div>
           </div>
@@ -648,6 +648,11 @@
             class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#f2c65d] text-[#4b0811] hover:bg-[#e7b747] text-xs font-bold transition shadow-xs shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             Export CSV Report
+          </button>
+          <button id="clearAllLogsBtn" type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 text-white hover:bg-[#9f1d28] hover:text-white text-xs font-bold transition shadow-xs shrink-0 border border-white/30">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+            Clear All
           </button>
         </div>
       </div>
@@ -1213,12 +1218,19 @@
       try {
         const res = await fetch("/predict", { method: "POST", body: fd });
         const data = await res.json();
-        expectedOrder = [...new Set(data.detections.map(d => d.name))];
+        const detectedDishes = [...new Set(data.detections.map(d => d.name))];
+        if (detectedDishes.length > 0) {
+          expectedOrder = detectedDishes;
+          $("refStatusText").textContent = `Extracted ${expectedOrder.length} item(s) • Ref fill: ${data.quantity.fill_pct}%`;
+        } else {
+          // If custom ONNX does not recognize or image has custom dish name, derive clean name from filename or prompt user
+          const rawName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").trim();
+          const cleanName = rawName ? toTitleCase(rawName) : "Reference Meal Item";
+          expectedOrder = [cleanName];
+          $("refStatusText").textContent = `Loaded '${cleanName}' from photo • Ref fill: ${data.quantity.fill_pct}%`;
+        }
         renderOrderChips(false);
         resetDetectionSection();
-        $("refStatusText").textContent = expectedOrder.length
-          ? `Extracted ${expectedOrder.length} item(s) • Ref fill: ${data.quantity.fill_pct}%`
-          : "No dishes found in reference photo. Try lowering confidence.";
       } catch {
         $("refStatusText").textContent = "Error scanning reference photo.";
       }
@@ -1336,8 +1348,8 @@
       if (!video.videoWidth || !video.videoHeight) return false;
       const maxDim = Math.max(video.videoWidth, video.videoHeight);
 
-      if (isLive && maxDim > 256) {
-        const scale = 256 / maxDim;
+      if (isLive && maxDim > 224) {
+        const scale = 224 / maxDim;
         liveCanvas.width = Math.round(video.videoWidth * scale);
         liveCanvas.height = Math.round(video.videoHeight * scale);
       } else {
@@ -1348,7 +1360,7 @@
       liveCtx.drawImage(video, 0, 0, liveCanvas.width, liveCanvas.height);
       liveCanvas.toBlob(blob => {
         if (blob) callback(blob);
-      }, "image/jpeg", isLive ? 0.55 : 0.90);
+      }, "image/jpeg", isLive ? 0.45 : 0.90);
       return true;
     }
 
@@ -1404,13 +1416,13 @@
           liveInFlight = false;
         }
         if (liveActive) {
-          // 250ms interval prevents overloading CPU on server and client
-          setTimeout(runLiveLoop, 250);
+          // 320ms interval ensures zero queue build-up and silky smooth camera rendering
+          setTimeout(runLiveLoop, 320);
         }
       }, true);
 
       if (!ok && liveActive) {
-        setTimeout(runLiveLoop, 200);
+        setTimeout(runLiveLoop, 250);
       }
     }
 
@@ -1802,6 +1814,7 @@
             <td class="py-2.5 space-x-2 whitespace-nowrap">
               <button onclick="renderResults(dispatchLog[${idx}].raw, ${idx})" class="text-[#5d0f18] font-bold hover:text-[#b87b1e] hover:underline">View</button>
               <button onclick="openProofModal(dispatchLog[${idx}])" class="px-2.5 py-1 rounded-full bg-[#faf2e3] text-[#5d0f18] border border-[#e5d5ba] hover:bg-[#5d0f18] hover:text-white font-semibold transition">Proof Slip</button>
+              <button onclick="deleteOrderRecord(${idx})" title="Delete order" class="px-2 py-1 rounded-full bg-[#fdf2f2] text-[#9f1d28] border border-[#e7bcbc] hover:bg-[#9f1d28] hover:text-white font-semibold transition">✕</button>
             </td>
           </tr>`;
       }).join("");
@@ -1972,6 +1985,44 @@
       a.download = "mothers_hut_dispatch_log.csv";
       a.click();
       showToast("CSV dispatch report exported.");
+    });
+
+    window.deleteOrderRecord = async function(idx) {
+      const row = dispatchLog[idx];
+      if (!row) return;
+      if (!confirm(`Delete order ${row.orderId} permanently?`)) return;
+
+      const targetId = row.dbId || row.orderId;
+      try {
+        const res = await fetch(`/orders/${encodeURIComponent(targetId)}`, { method: "DELETE" });
+        if (!res.ok) throw new Error();
+        dispatchLog.splice(idx, 1);
+        if (activeLogIndex === idx) activeLogIndex = null;
+        else if (activeLogIndex !== null && activeLogIndex > idx) activeLogIndex--;
+        renderDispatchTable();
+        showToast(`Order ${row.orderId} deleted.`);
+      } catch {
+        showToast("Error deleting order from vault.");
+      }
+    };
+
+    $("clearAllLogsBtn").addEventListener("click", async () => {
+      if (dispatchLog.length === 0) {
+        showToast("Dispatch log is already empty.");
+        return;
+      }
+      if (!confirm("Are you sure you want to delete ALL orders from the dispatch log? This cannot be undone.")) return;
+
+      try {
+        const res = await fetch("/orders", { method: "DELETE" });
+        if (!res.ok) throw new Error();
+        dispatchLog = [];
+        activeLogIndex = null;
+        renderDispatchTable();
+        showToast("All dispatch orders have been cleared.");
+      } catch {
+        showToast("Error clearing dispatch vault.");
+      }
     });
   </script>
 </body>
