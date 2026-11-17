@@ -338,12 +338,9 @@ def draw_top_left_label(pil_img: Image.Image, detections: list) -> str:
 
 def estimate_fill_percentage(pil_img: Image.Image, detections: list | None = None) -> float:
     """
-    Estimate bowl/plate food fill percentage (0-100%) using color and texture.
-    Includes human skin suppression so people or hands in front of the camera do not register as full meal bowls.
+    Estimate bowl/plate food fill percentage (0-100%) using color, contrast, and texture.
+    Robustly identifies food volume in bowls, plates, trays, and beverage glasses.
     """
-    if detections is not None and len(detections) == 0:
-        return 0.0
-
     small = np.array(pil_img.resize((240, 240)))
     hsv = cv2.cvtColor(small, cv2.COLOR_RGB2HSV)
     gray = cv2.cvtColor(small, cv2.COLOR_RGB2GRAY).astype(np.float32)
@@ -355,22 +352,24 @@ def estimate_fill_percentage(pil_img: Image.Image, detections: list | None = Non
     h, w = gray.shape
     Y, X = np.ogrid[:h, :w]
 
+    # Circular/oval region of interest covering the plate or bowl (44% radius)
     roi_mask = (
         np.sqrt((X - w / 2) ** 2 + (Y - h / 2) ** 2)
-        <= (min(h, w) * 0.36)
+        <= (min(h, w) * 0.44)
     )
 
     h_ch = hsv[:, :, 0]
     s_ch = hsv[:, :, 1]
     v_ch = hsv[:, :, 2]
 
-    # Skin color suppression in HSV (human skin tones: hands, face)
-    skin_mask = (((h_ch <= 25) | (h_ch >= 165)) & (s_ch >= 18) & (s_ch <= 160) & (v_ch >= 50))
-    smooth_skin = skin_mask & (local_std < 22)
+    # Suppress pure flat human skin (e.g. holding camera or face close-up)
+    skin_mask = (((h_ch <= 24) | (h_ch >= 168)) & (s_ch >= 20) & (s_ch <= 150) & (v_ch >= 55))
+    smooth_skin = skin_mask & (local_std < 16)
 
-    rich_color = (s_ch >= 42) & (v_ch >= 30) & (v_ch <= 245) & (~smooth_skin)
+    # Detect prepared food (rich saucy tones, fried textures, rice grains, green veggies, breads, gravies)
+    rich_color = (s_ch >= 28) & (v_ch >= 22) & (v_ch <= 250) & (~smooth_skin)
     textured_food = (
-        (local_std >= 18) & (s_ch >= 22) & (v_ch >= 35) & (v_ch <= 240) & (~smooth_skin)
+        (local_std >= 13) & (s_ch >= 14) & (v_ch >= 25) & (v_ch <= 245) & (~smooth_skin)
     )
 
     food_mask = (rich_color | textured_food) & roi_mask

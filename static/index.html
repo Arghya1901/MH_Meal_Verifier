@@ -949,18 +949,17 @@
           ? `<span class="w-2 h-2 rounded-full bg-[#d9a441]"></span> Demo Mode`
           : `<span class="w-2 h-2 rounded-full bg-[#15803d]"></span> ${data.total} Indian Dishes Ready`;
 
-        if (data.hybrid === false) {
-          aiMode = "custom";
-          $("modeHintText").textContent = "18-Dish Model Active (Cloud Mode)";
-          document.querySelectorAll(".ai-mode-btn").forEach(b => {
-            if (b.dataset.aiMode === "custom") {
-              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition whitespace-nowrap";
-            } else {
-              b.disabled = true;
-              b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-[#b9a596] cursor-not-allowed transition whitespace-nowrap";
-            }
-          });
-        }
+        // Always default to Auto Hybrid mode so 18-dish ONNX and Open-Vocab both run seamlessly
+        aiMode = "hybrid";
+        $("modeHintText").textContent = "18-Dish (.onnx) + Open-Vocab AI (Always Active)";
+        document.querySelectorAll(".ai-mode-btn").forEach(b => {
+          b.disabled = false;
+          if (b.dataset.aiMode === "hybrid") {
+            b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full bg-[#5d0f18] text-white shadow-xs transition whitespace-nowrap";
+          } else {
+            b.className = "ai-mode-btn flex-1 py-1.5 px-2 rounded-full text-[#6e5248] hover:text-[#5d0f18] transition whitespace-nowrap";
+          }
+        });
 
         allDishes.forEach(dish => {
           const opt = document.createElement("option");
