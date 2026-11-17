@@ -336,8 +336,14 @@ def draw_top_left_label(pil_img: Image.Image, detections: list) -> str:
     return to_base64(Image.fromarray(rgb))
 
 
-def estimate_fill_percentage(pil_img: Image.Image) -> float:
-    """Estimate bowl/plate food fill percentage (0-100%) using color and texture."""
+def estimate_fill_percentage(pil_img: Image.Image, detections: list | None = None) -> float:
+    """
+    Estimate bowl/plate food fill percentage (0-100%) using color and texture.
+    Includes human skin suppression so people or hands in front of the camera do not register as full meal bowls.
+    """
+    if detections is not None and len(detections) == 0:
+        return 0.0
+
     small = np.array(pil_img.resize((240, 240)))
     hsv = cv2.cvtColor(small, cv2.COLOR_RGB2HSV)
     gray = cv2.cvtColor(small, cv2.COLOR_RGB2GRAY).astype(np.float32)
@@ -354,12 +360,17 @@ def estimate_fill_percentage(pil_img: Image.Image) -> float:
         <= (min(h, w) * 0.36)
     )
 
-    s = hsv[:, :, 1]
-    v = hsv[:, :, 2]
+    h_ch = hsv[:, :, 0]
+    s_ch = hsv[:, :, 1]
+    v_ch = hsv[:, :, 2]
 
-    rich_color = (s >= 42) & (v >= 30) & (v <= 245)
+    # Skin color suppression in HSV (human skin tones: hands, face)
+    skin_mask = (((h_ch <= 25) | (h_ch >= 165)) & (s_ch >= 18) & (s_ch <= 160) & (v_ch >= 50))
+    smooth_skin = skin_mask & (local_std < 22)
+
+    rich_color = (s_ch >= 42) & (v_ch >= 30) & (v_ch <= 245) & (~smooth_skin)
     textured_food = (
-        (local_std >= 16) & (s >= 18) & (v >= 35) & (v <= 240)
+        (local_std >= 18) & (s_ch >= 22) & (v_ch >= 35) & (v_ch <= 240) & (~smooth_skin)
     )
 
     food_mask = (rich_color | textured_food) & roi_mask
@@ -1132,10 +1143,10 @@ async def predict_from_url(url: str = Form(...), conf: float = Form(0.25)):
     except Exception:
         raise HTTPException(status_code=400, detail="URL did not return a valid image.")
 
-    fill_pct = float(estimate_fill_percentage(image))
     detections, _ = run_hybrid_inference(
         image, float(conf), mode="hybrid", expected_list=[], with_plot=False, is_live=False
     )
+    fill_pct = float(estimate_fill_percentage(image, detections))
 
     return {
         "type": "image",
@@ -1167,11 +1178,6 @@ async def predict(
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid image file.")
 
-    fill_pct = float(estimate_fill_percentage(image))
-    min_fill_val = float(min_fill)
-    quantity_ok = bool(fill_pct >= min_fill_val)
-    conf_val = float(conf)
-
     expected_list = [item.strip() for item in expected.split(",") if item.strip()]
     original_b64 = "" if live else to_base64(image)
 
@@ -1179,6 +1185,11 @@ async def predict(
         image, conf_val, mode=mode, expected_list=expected_list,
         with_plot=(not live), is_live=live
     )
+
+    fill_pct = float(estimate_fill_percentage(image, detections))
+    min_fill_val = float(min_fill)
+    quantity_ok = bool(fill_pct >= min_fill_val)
+    conf_val = float(conf)
 
     speed_ms = float(round((time.perf_counter() - start) * 1000, 1))
     detected_names = {d["name"] for d in detections}
