@@ -1178,6 +1178,8 @@ async def predict(
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid image file.")
 
+    conf_val = float(conf)
+    min_fill_val = float(min_fill)
     expected_list = [item.strip() for item in expected.split(",") if item.strip()]
     original_b64 = "" if live else to_base64(image)
 
@@ -1187,9 +1189,7 @@ async def predict(
     )
 
     fill_pct = float(estimate_fill_percentage(image, detections))
-    min_fill_val = float(min_fill)
     quantity_ok = bool(fill_pct >= min_fill_val)
-    conf_val = float(conf)
 
     speed_ms = float(round((time.perf_counter() - start) * 1000, 1))
     detected_names = {d["name"] for d in detections}
